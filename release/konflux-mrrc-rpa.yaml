@@ -17,9 +17,9 @@ spec:
         - name: url
           value: "https://github.com/ligangty/konflux-mrrc-release.git"
         - name: revision
-          value: konflux
+          value: main
         - name: pathInRepo
-          value: "pipelines/release/konflux-mrrc-pipeline.yaml"
+          value: "release/pipelines/konflux-mrrc-pipeline.yaml"
     timeouts:
       pipeline: "1h0m0s"
     serviceAccountName: appstudio-pipeline

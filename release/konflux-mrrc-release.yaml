@@ -1,8 +1,8 @@
 apiVersion: appstudio.redhat.com/v1alpha1
 kind: Release
 metadata:
-  name: konflux-mrrc-release-5
+  name: konflux-mrrc-release-8
   namespace: gli2-tenant
 spec:
   releasePlan: konflux-mrrc-release-plan
-  snapshot: konflux-mrrc-bnjn2
+  snapshot: konflux-mrrc-release-vmqmb

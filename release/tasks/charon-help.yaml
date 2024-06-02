@@ -4,7 +4,7 @@ metadata:
   name: konflux-mrrc-help
 spec:
   params:
-    - name: prodctName
+    - name: productName
     - name: productVersion
   steps:
     - name: show-konflux-mrrc-help
