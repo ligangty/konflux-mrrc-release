@@ -1,0 +1,25 @@
+schemaVersion: 2.2.0
+metadata:
+  name: Konflux MRRC Release
+  displayName: Konflux MRRC Release 
+  description: 'Konflux MRRC Release is used to upload MW product maven repo to Ronda'
+  language: Go
+  projectType: Go
+  tags:
+    - Go
+  version: 1.0.0
+parent:
+  id: Konflux MRRC Release
+  registryUrl: 'https://registry.devfile.io'
+components:
+  - name: image-build
+    image:
+      imageName: konflux-mrrc-release:latest
+      dockerfile:
+        uri: Containerfile
+        buildContext: .
+        rootRequired: false
+commands:
+  - id: build-image
+    apply:
+      component: image-build
