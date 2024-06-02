@@ -31,4 +31,4 @@ USER ${USER}
 ENV HOME=${HOME_DIR} \
     LANG=en_US.UTF-8
 
-ENTRYPOINT ["main"]
+ENTRYPOINT ["./main"]
