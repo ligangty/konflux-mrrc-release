@@ -5,13 +5,20 @@ metadata:
 spec:
   params:
     - name: productName
+      type: string
+      description: The name of the product
+      default: "NoProduct"
     - name: productVersion
+      type: string
+      description: The version of the product
+      default: "0"
   steps:
     - name: show-konflux-mrrc-help
       image: quay.io/ligangty/charon:latest
       script: |
         set -eux
-
+        echo $(params.productName)
+        echo $(params.productVersion)
         charon --help
       workingDir: $(workspaces.data.path)
   workspaces:
