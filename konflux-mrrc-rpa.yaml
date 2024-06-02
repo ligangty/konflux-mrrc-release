@@ -1,0 +1,26 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: ReleasePlanAdmission
+metadata:
+  name: konflux-mrrc-release
+  namespace: gli2-tenant
+  labels:
+    release.appstudio.openshift.io/auto-release: "true"
+spec:
+  applications:
+    - konflux-mrrc-release
+  environment: konflux-mrrc-release
+  origin: gli2-tenant
+  pipeline:
+    pipelineRef:
+      resolver: git
+      params:
+        - name: url
+          value: "https://github.com/ligangty/konflux-mrrc-release.git"
+        - name: revision
+          value: konflux
+        - name: pathInRepo
+          value: "pipelines/konflux-mrrc-pipeline.yaml"
+    timeouts:
+      pipeline: "1h0m0s"
+    serviceAccountName: appstudio-pipeline
+  policy: konflux-mrrc-release-policy

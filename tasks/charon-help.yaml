@@ -1,0 +1,18 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: konflux-mrrc-help
+spec:
+  params:
+    - name: prodctName
+    - name: productVersion
+  steps:
+    - name: show-konflux-mrrc-help
+      image: quay.io/ligangty/charon:latest
+      script: |
+        set -eux
+
+        charon --help
+      workingDir: $(workspaces.data.path)
+  workspaces:
+    - name: data

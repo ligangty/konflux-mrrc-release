@@ -1,0 +1,18 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: EnterpriseContractPolicy
+metadata:
+  name: konflux-mrrc-release-policy
+  namespace: gli2-tenant
+spec:
+  configuration:
+    include:
+      - '@builtin'
+  description: Includes rules for shipping konflux-mrrc-release
+  publicKey: k8s://openshift-pipelines/public-key
+  sources:
+  - data:
+    - github.com/release-engineering/rhtap-ec-policy//data
+    - oci::quay.io/redhat-appstudio-tekton-catalog/data-acceptable-bundles:latest
+    name: Default
+    policy:
+    - oci::quay.io/enterprise-contract/ec-release-policy:latest

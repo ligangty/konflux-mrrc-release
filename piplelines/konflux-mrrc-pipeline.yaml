@@ -1,0 +1,104 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: konflux-mrrc-release-pipeline
+  labels:
+    app.kubernetes.io/version: "4.1.0"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.12.1"
+    tekton.dev/tags: release
+spec:
+  description: >-
+    Single test pipeline for test release
+  params:
+    - name: release
+      type: string
+      description:
+        The namespaced name (namespace/name) of the Release custom resource initiating this pipeline execution
+    - name: releasePlan
+      type: string
+      description: The namespaced name (namespace/name) of the releasePlan
+    - name: releasePlanAdmission
+      type: string
+      description: The namespaced name (namespace/name) of the releasePlanAdmission
+    - name: releaseServiceConfig
+      type: string
+      description: The namespaced name (namespace/name) of the releaseServiceConfig
+    - name: snapshot
+      type: string
+      description: The namespaced name (namespace/name) of the snapshot
+    - name: enterpriseContractPolicy
+      type: string
+      description: JSON representation of the EnterpriseContractPolicy
+    - name: enterpriseContractPublicKey
+      type: string
+      description: Public key to use for validation by the enterprise contract
+      default: k8s://openshift-pipelines/public-key
+    - name: postCleanUp
+      type: string
+      description: Cleans up workspace after finishing executing the pipeline
+      default: "true"
+    - name: verify_ec_task_bundle
+      type: string
+      description: The location of the bundle containing the verify-enterprise-contract task
+    - name: taskGitUrl
+      type: string
+      description: The url to the git repo where the release-service-catalog tasks to be used are stored
+      default: https://github.com/ligangty/konflux-mrrc-release.git
+    - name: taskGitRevision
+      type: string
+      description: The revision in the taskGitUrl repo to be used
+      default: main
+  workspaces:
+    - name: release-workspace
+  tasks:
+    # - name: build-image
+    #   taskRef:
+    #     resolver: "git"
+    #     params:
+    #       - name: url
+    #         value: $(params.taskGitUrl)
+    #       - name: revision
+    #         value: $(params.taskGitRevision)
+    #       - name: pathInRepo
+    #         value: release/tasks/konflux-mrrc-task.yaml
+    #   workspaces:
+    #     - name: data
+    #       workspace: release-workspace
+    - name: charon-help
+      taskRef:
+        resolver: "git"
+        params:
+          - name: url
+            value: $(params.taskGitUrl)
+          - name: revision
+            value: $(params.taskGitRevision)
+          - name: pathInRepo
+            value: tasks/charon-help.yaml
+      workspaces:
+        - name: data
+          workspace: release-workspace
+  finally:
+    - name: cleanup
+      taskRef:
+        resolver: "git"
+        params:
+          - name: url
+            value: $(params.taskGitUrl)
+          - name: revision
+            value: $(params.taskGitRevision)
+          - name: pathInRepo
+            value: tasks/cleanup-workspace.yaml
+      when:
+        - input: $(params.postCleanUp)
+          operator: in
+          values: ["true"]
+      params:
+        - name: subdirectory
+          value: "$(context.pipelineRun.uid)"
+        - name: pipelineRunUid
+          value: $(context.pipelineRun.uid)
+      workspaces:
+        - name: data
+          workspace: release-workspace
