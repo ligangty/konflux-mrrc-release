@@ -53,19 +53,6 @@ spec:
   workspaces:
     - name: release-workspace
   tasks:
-    # - name: build-image
-    #   taskRef:
-    #     resolver: "git"
-    #     params:
-    #       - name: url
-    #         value: $(params.taskGitUrl)
-    #       - name: revision
-    #         value: $(params.taskGitRevision)
-    #       - name: pathInRepo
-    #         value: release/tasks/konflux-mrrc-task.yaml
-    #   workspaces:
-    #     - name: data
-    #       workspace: release-workspace
     - name: charon-help
       taskRef:
         resolver: "git"
@@ -75,7 +62,7 @@ spec:
           - name: revision
             value: $(params.taskGitRevision)
           - name: pathInRepo
-            value: tasks/charon-help.yaml
+            value: release/tasks/charon-help.yaml
       workspaces:
         - name: data
           workspace: release-workspace
@@ -89,7 +76,7 @@ spec:
           - name: revision
             value: $(params.taskGitRevision)
           - name: pathInRepo
-            value: tasks/cleanup-workspace.yaml
+            value: release/tasks/cleanup-workspace.yaml
       when:
         - input: $(params.postCleanUp)
           operator: in
