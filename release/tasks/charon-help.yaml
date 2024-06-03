@@ -6,6 +6,14 @@ spec:
   params:
     - name: dataJsonPath
       description: path to data json file
+    - name: charonConfig
+      desscription: the configmap name for charon configs
+      type: string
+      default: "charon-configs"
+    - name: charonConfigVol
+      desscription: the configmap mount volume name for charon configs
+      type: string
+      default: "charon-configs-vol"
   steps:
     - name: show-konflux-mrrc-help
       image: quay.io/ligangty/charon:latest
@@ -16,7 +24,15 @@ spec:
         productVersion=$(cat $(params.dataJsonPath) | jq '.product.version')
         productZipUrl=$(cat $(params.dataJsonPath) | jq '.product.zipUrl')
         echo "$productName:$productVersion:$productZipUrl"
+        cat /home/.charon/charon.yaml
         charon --help
       workingDir: $(workspaces.data.path)
+      volumeMounts:
+        - name: "$(params.charonConfigVol)"
+          mountPath: "/home/.charon"
+  volumes:
+    - name: "$(params.charonConfigVol)"
+      configMap:
+        name: "$(params.charonConfig)"
   workspaces:
     - name: data

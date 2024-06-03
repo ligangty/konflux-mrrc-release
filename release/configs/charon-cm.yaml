@@ -1,0 +1,39 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: charon-configs
+  labels:
+    app: konflux-mrrc-release
+  namespace: gli2-tenant
+data:
+  charon.yaml: >
+    #aws_profile: ${profile}
+    #aws_cf_enable: True
+
+    ignore_patterns:
+      - ".*^(redhat).*"
+      - ".*snapshot.*"
+
+    ignore_signature_suffix:
+      maven:
+        - ".sha1"
+        - ".sha256"
+        - ".md5"
+        - "maven-metadata.xml"
+        - "archtype-catalog.xml"
+      npm:
+        - "package.json"
+
+    #detach_signature_command: "rpm-sign --detach-sign --key {{ key }} {{ file }}"
+
+    targets:
+      stage-maven-ga:
+      - bucket: "stage-maven-ga"
+        prefix: ga
+      stage-maven-ea:
+      - bucket: "stage-maven-ea"
+        prefix: earlyaccess/all
+      stage-npm:
+      - bucket: "stage-npm-npmjs"
+        prefix: /
+        registry: "npm.stage.registry.redhat.com"
