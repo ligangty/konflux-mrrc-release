@@ -11,8 +11,11 @@ spec:
       image: quay.io/ligangty/charon:latest
       script: |
         set -eux
-        echo "data: $(params.dataJsonPath)"
         cat $(params.dataJsonPath)
+        productName=$(cat $(params.dataJsonPath) | jq '.product.name')
+        productVersion=$(cat $(params.dataJsonPath) | jq '.product.version')
+        productZipUrl=$(cat $(params.dataJsonPath) | jq '.product.zipUrl')
+        echo "$productName:$productVersion:$productZipUrl"
         charon --help
       workingDir: $(workspaces.data.path)
   workspaces:
