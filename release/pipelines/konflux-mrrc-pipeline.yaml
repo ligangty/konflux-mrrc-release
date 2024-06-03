@@ -12,21 +12,30 @@ spec:
   description: >-
     Single test pipeline for test release
   params:
+    - name: release
+    - name: releasePlan
+    - name: releasePlanAdmission
+    - name: releaseServiceConfig
+    - name: snapshot
     - name: postCleanUp
       type: string
       description: Cleans up workspace after finishing executing the pipeline
       default: "true"
-    - name: verify_ec_task_bundle
-      type: string
-      description: The location of the bundle containing the verify-enterprise-contract task
     - name: taskGitUrl
       type: string
       description: The url to the git repo where the release-service-catalog tasks to be used are stored
       default: https://github.com/ligangty/konflux-mrrc-release.git
     - name: taskGitRevision
       type: string
-      description: The revision in the taskGitUrl repo to be used
       default: main
+    - name: konfluxTaskGitUrl
+      type: string
+      description: The url to the git repo where the release-service-catalog tasks to be used are stored
+      default: https://github.com/konflux-ci/release-service-catalog.git
+    - name: konfluxTaskGitRevision
+      type: string
+      description: The revision in the taskGitUrl repo to be used
+      default: production
     - name: productName
       type: string
       description: The name of the product
@@ -49,6 +58,30 @@ spec:
   workspaces:
     - name: release-workspace
   tasks:
+    - name: collect-data
+      taskRef:
+        resolver: "git"
+        params:
+          - name: url
+            value: $(params.konfluxTaskGitUrl)
+          - name: revision
+            value: $(params.konfluxTaskGitRevision)
+          - name: pathInRepo
+            value: tasks/collect-data/collect-data.yaml
+      params:
+        - name: release
+          value: $(params.release)
+        - name: releasePlan
+          value: $(params.releasePlan)
+        - name: releasePlanAdmission
+          value: $(params.releasePlanAdmission)
+        - name: releaseServiceConfig
+          value: $(params.releaseServiceConfig)
+        - name: snapshot
+          value: $(params.snapshot)
+      workspaces:
+        - name: data
+          workspace: release-workspace
     - name: charon-help
       taskRef:
         resolver: "git"
@@ -64,6 +97,8 @@ spec:
           value: "$(params.productName)"
         - name: productVersion
           value: "$(params.productVersion)"
+        - name: dataJsonPath
+          value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
       workspaces:
         - name: data
           workspace: release-workspace
