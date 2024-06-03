@@ -19,12 +19,21 @@ spec:
       image: quay.io/ligangty/charon:latest
       script: |
         set -eux
-        cat $(params.dataJsonPath)
+        target=$(cat $(params.dataJsonPath) | jq '.target')
+        if [ "$target" == "" ] && [ "$target" == "null" ]; then
+          target="stage-maven-ga"
+        fi
         productName=$(cat $(params.dataJsonPath) | jq '.product.name')
         productVersion=$(cat $(params.dataJsonPath) | jq '.product.version')
         productZipUrl=$(cat $(params.dataJsonPath) | jq '.product.zipUrl')
-        echo "$productName:$productVersion:$productZipUrl"
-        cat /home/charon/.charon/charon.yaml
+        awsEnvs=$(cat data.json | jq '.awsEnvs') 
+        if [ "$awsEnvs" != "" ] && [ "$awsEnvs" != "null" ]; then 
+          for i in $(echo $awsEnvs | jq 'keys[]'); do
+            eval "export $i=$(echo $awsEnvs | jq .$i)" 
+          done
+        fi
+        export
+        echo "Release $productName-$productVersion through $productZipUrl into $target"
         charon --help
       workingDir: $(workspaces.data.path)
       volumeMounts:
