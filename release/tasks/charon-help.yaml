@@ -24,12 +24,12 @@ spec:
         productVersion=$(cat $(params.dataJsonPath) | jq '.product.version')
         productZipUrl=$(cat $(params.dataJsonPath) | jq '.product.zipUrl')
         echo "$productName:$productVersion:$productZipUrl"
-        cat /home/.charon/charon.yaml
+        cat /home/charon/.charon/charon.yaml
         charon --help
       workingDir: $(workspaces.data.path)
       volumeMounts:
         - name: "$(params.charonConfigVol)"
-          mountPath: "/home/.charon"
+          mountPath: "/home/charon/.charon"
   volumes:
     - name: "$(params.charonConfigVol)"
       configMap:

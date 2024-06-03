@@ -17,10 +17,10 @@ spec:
     - name: releasePlanAdmission
     - name: releaseServiceConfig
     - name: snapshot
-    - name: postCleanUp
-      type: string
-      description: Cleans up workspace after finishing executing the pipeline
-      default: "true"
+    # - name: postCleanUp
+    #   type: string
+    #   description: Cleans up workspace after finishing executing the pipeline
+    #   default: "true"
     - name: taskGitUrl
       type: string
       description: The url to the git repo where the release-service-catalog tasks to be used are stored
@@ -102,26 +102,26 @@ spec:
       workspaces:
         - name: data
           workspace: release-workspace
-  finally:
-    - name: cleanup
-      taskRef:
-        resolver: "git"
-        params:
-          - name: url
-            value: $(params.taskGitUrl)
-          - name: revision
-            value: $(params.taskGitRevision)
-          - name: pathInRepo
-            value: release/tasks/cleanup-workspace.yaml
-      when:
-        - input: $(params.postCleanUp)
-          operator: in
-          values: ["true"]
-      params:
-        - name: subdirectory
-          value: "$(context.pipelineRun.uid)"
-        - name: pipelineRunUid
-          value: $(context.pipelineRun.uid)
-      workspaces:
-        - name: data
-          workspace: release-workspace
+  # finally:
+  #   - name: cleanup
+  #     taskRef:
+  #       resolver: "git"
+  #       params:
+  #         - name: url
+  #           value: $(params.taskGitUrl)
+  #         - name: revision
+  #           value: $(params.taskGitRevision)
+  #         - name: pathInRepo
+  #           value: release/tasks/cleanup-workspace.yaml
+  #     when:
+  #       - input: $(params.postCleanUp)
+  #         operator: in
+  #         values: ["true"]
+  #     params:
+  #       - name: subdirectory
+  #         value: "$(context.pipelineRun.uid)"
+  #       - name: pipelineRunUid
+  #         value: $(context.pipelineRun.uid)
+  #     workspaces:
+  #       - name: data
+  #         workspace: release-workspace
