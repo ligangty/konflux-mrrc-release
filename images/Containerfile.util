@@ -1,0 +1,43 @@
+FROM registry.access.redhat.com/ubi8-minimal:latest
+
+
+LABEL description="Oras tool image" \
+      summary="Oras tool image" \
+      maintainer="Gang Li" \
+      vendor="Red Hat, Inc." \
+      distribution-scope="public" 
+
+ARG USER=konflux
+ARG UID=10000
+ARG HOME_DIR=/home/${USER}
+
+WORKDIR ${HOME_DIR}
+
+USER root
+
+RUN microdnf install -y tar gzip curl shadow-utils skopeo \
+    && microdnf clean all
+RUN useradd -d ${HOME_DIR} -u ${UID} -g 0 -m -s /bin/bash ${USER} \
+    && chown ${USER}:0 ${HOME_DIR} \
+    && chmod -R g+rwx ${HOME_DIR} \
+    && chmod g+rw /etc/passwd
+
+# install oras
+ARG VERSION=1.0.0
+RUN curl -LO "https://github.com/oras-project/oras/releases/download/v${VERSION}/oras_${VERSION}_linux_amd64.tar.gz" \
+    && mkdir -p oras-install/ \
+    && tar -zxf oras_${VERSION}_*.tar.gz -C oras-install/ \
+    && mv oras-install/oras /usr/local/bin/ \
+    && rm -rf oras_${VERSION}_*.tar.gz oras-install/
+
+# install cosign
+RUN curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64" \
+    && mv cosign-linux-amd64 /usr/local/bin/cosign \
+    && chmod +x /usr/local/bin/cosign
+
+USER ${USER}
+
+ENV HOME=${HOME_DIR} \
+    LANG=en_US.UTF-8
+
+ENTRYPOINT ["bash"]
