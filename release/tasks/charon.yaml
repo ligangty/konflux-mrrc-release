@@ -27,13 +27,13 @@ spec:
       script: |
         set -eux
         jsonData=$(cat $(params.dataJsonPath))
-        target=$(echo $jsonData | jq '.target')
+        target=$(echo $jsonData | jq -r '.target')
         if [ "$target" == "" ] && [ "$target" == "null" ]; then
           target="prod-maven-ga"
         fi
-        productName=$(echo $jsonData | jq '.product.name')
-        productVersion=$(echo $jsonData | jq '.product.version')
-        productZipUrl=$(echo $jsonData | jq '.product.zipUrl')
+        productName=$(echo $jsonData | jq -r '.product.name')
+        productVersion=$(echo $jsonData | jq -r '.product.version')
+        productZipUrl=$(echo $jsonData | jq -r '.product.zipUrl')
         awsEnvs=$(echo $jsonData | jq '.awsEnvs') 
         if [ "$awsEnvs" != "" ] && [ "$awsEnvs" != "null" ]; then 
           for i in $(echo $awsEnvs | jq 'keys[]'); do
@@ -41,7 +41,7 @@ spec:
           done
         fi
         echo "Release $productName-$productVersion through $productZipUrl into $target"
-        charon --help
+        charon upload -p $productName -v $productVersion -t $target $productZipUrl
       workingDir: $(workspaces.data.path)
       volumeMounts:
         - name: "$(params.charonConfigVol)"

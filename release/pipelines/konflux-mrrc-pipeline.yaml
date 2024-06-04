@@ -91,7 +91,7 @@ spec:
           - name: revision
             value: $(params.taskGitRevision)
           - name: pathInRepo
-            value: release/tasks/charon-help.yaml
+            value: release/tasks/charon.yaml
       params:
         - name: productName
           value: "$(params.productName)"
