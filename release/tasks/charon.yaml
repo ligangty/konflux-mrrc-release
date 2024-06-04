@@ -6,6 +6,8 @@ spec:
   params:
     - name: dataJsonPath
       description: path to data json file
+    - name: mavenRepoPath
+      description: path of the maven repo zip to upload
     - name: charonConfig
       description: the configmap name for charon configs
       type: string
@@ -40,8 +42,10 @@ spec:
             eval "export $i=$(echo $awsEnvs | jq .$i)" 
           done
         fi
-        echo "Release $productName-$productVersion through $productZipUrl into $target"
-        charon upload -p $productName -v $productVersion -t $target $productZipUrl
+        ls -la
+        ls -l $(params.mavenRepoPath)
+        echo "Release $productName-$productVersion into $target"
+        charon upload -p $productName -v $productVersion -t $target $(params.mavenRepoPath)
       workingDir: $(workspaces.data.path)
       volumeMounts:
         - name: "$(params.charonConfigVol)"

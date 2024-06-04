@@ -8,6 +8,9 @@ spec:
       description: path to data json file
     - name: repoStorePath
       description: path to store the repo zip
+  results:
+    - name: repoPath
+      description: path of the maven repo zip downloaded
   steps:
     - name: download-maven-repo
       image: quay.io/ligangty/image-util:latest
@@ -17,7 +20,11 @@ spec:
         zipRegistry=$(echo $jsonData | jq -r '.product.zipRegistry')
         echo "Downloading the maven repo zip $(zipRegistry) to $(params.repoStorePath)"
         cd $(params.repoStorePath)
+        mkdir maven-repo
+        cd maven-repo
         oras pull $zipRegistry
+        repoName=$(ls *.zip)
+        echo -n "maven-repo/$repoName" > "$(results.repoPath.path)"
       workingDir: $(workspaces.data.path)
   workspaces:
     - name: data

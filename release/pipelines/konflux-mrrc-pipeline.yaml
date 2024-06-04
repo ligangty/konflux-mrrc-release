@@ -115,6 +115,8 @@ spec:
       params:
         - name: dataJsonPath
           value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
+        - name: mavenRepoPath
+          value: "$(tasks.repo-download.results.repoPath)"
       workspaces:
         - name: data
           workspace: release-workspace
