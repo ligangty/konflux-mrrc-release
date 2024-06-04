@@ -19,13 +19,14 @@ spec:
       image: quay.io/ligangty/charon:latest
       script: |
         set -eux
-        target=$(cat $(params.dataJsonPath) | jq '.target')
+        jsonData=$(cat $(params.dataJsonPath))
+        target=$(cat $jsonData | jq '.target')
         if [ "$target" == "" ] && [ "$target" == "null" ]; then
-          target="stage-maven-ga"
+          target="prod-maven-ga"
         fi
-        productName=$(cat $(params.dataJsonPath) | jq '.product.name')
-        productVersion=$(cat $(params.dataJsonPath) | jq '.product.version')
-        productZipUrl=$(cat $(params.dataJsonPath) | jq '.product.zipUrl')
+        productName=$(cat $jsonData | jq '.product.name')
+        productVersion=$(cat $jsonData | jq '.product.version')
+        productZipUrl=$(cat $jsonData | jq '.product.zipUrl')
         awsEnvs=$(cat data.json | jq '.awsEnvs') 
         if [ "$awsEnvs" != "" ] && [ "$awsEnvs" != "null" ]; then 
           for i in $(echo $awsEnvs | jq 'keys[]'); do
