@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: konflux-mrrc-help
+spec:
+  params:
+    - name: dataJsonPath
+      description: path to data json file
+    - name: repoStorePath
+      description: path to store the repo zip
+  steps:
+    - name: download-maven-repo
+      image: quay.io/ligangty/image-util:latest
+      script: |
+        set -eux
+        jsonData=$(cat $(params.dataJsonPath))
+        zipRegistry=$(echo $jsonData | jq -r '.product.zipRegistry')
+        echo "Downloading the maven repo zip $(zipRegistry) to $(params.repoStorePath)"
+        cd $(params.repoStorePath)
+        oras pull $zipRegistry
+      workingDir: $(workspaces.data.path)
+  workspaces:
+    - name: data

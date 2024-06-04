@@ -22,7 +22,7 @@ spec:
       type: string
       default: "charon-aws-credentials"
   steps:
-    - name: show-konflux-mrrc-help
+    - name: upload-maven-repo
       image: quay.io/ligangty/charon:latest
       script: |
         set -eux

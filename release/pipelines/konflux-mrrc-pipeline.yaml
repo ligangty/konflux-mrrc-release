@@ -82,7 +82,27 @@ spec:
       workspaces:
         - name: data
           workspace: release-workspace
-    - name: charon-help
+    - name: repo-download
+      taskRef:
+        resolver: "git"
+        params:
+          - name: url
+            value: $(params.taskGitUrl)
+          - name: revision
+            value: $(params.taskGitRevision)
+          - name: pathInRepo
+            value: release/tasks/repo-download.yaml
+      params:
+        - name: dataJsonPath
+          value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
+        - name: repoStorePath
+          value: "$(workspaces.data.path)"
+      workspaces:
+        - name: data
+          workspace: release-workspace
+      runAfter:
+        - collect-data
+    - name: charon
       taskRef:
         resolver: "git"
         params:
@@ -93,15 +113,13 @@ spec:
           - name: pathInRepo
             value: release/tasks/charon.yaml
       params:
-        - name: productName
-          value: "$(params.productName)"
-        - name: productVersion
-          value: "$(params.productVersion)"
         - name: dataJsonPath
           value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
       workspaces:
         - name: data
           workspace: release-workspace
+      runAfter:
+        - repo-download
   # finally:
   #   - name: cleanup
   #     taskRef:
