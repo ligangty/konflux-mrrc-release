@@ -7,13 +7,20 @@ spec:
     - name: dataJsonPath
       description: path to data json file
     - name: charonConfig
-      desscription: the configmap name for charon configs
+      description: the configmap name for charon configs
       type: string
       default: "charon-configs"
     - name: charonConfigVol
-      desscription: the configmap mount volume name for charon configs
+      description: the configmap mount volume name for charon configs
       type: string
       default: "charon-configs-vol"
+    - name: charonAWSVol
+      description: the secret mount volume name for charon aws credentials
+      type: string
+      default: "charon-aws-vol"
+    - name: charonAWSCreds
+      type: string
+      default: "charon-aws-credentials"
   steps:
     - name: show-konflux-mrrc-help
       image: quay.io/ligangty/charon:latest
@@ -33,16 +40,20 @@ spec:
             eval "export $i=$(echo $awsEnvs | jq .$i)" 
           done
         fi
-        export
         echo "Release $productName-$productVersion through $productZipUrl into $target"
         charon --help
       workingDir: $(workspaces.data.path)
       volumeMounts:
         - name: "$(params.charonConfigVol)"
           mountPath: "/home/charon/.charon"
+        - name: "$(params.charonAWSVol)"
+          mountPath: "/home/charon/.aws"
   volumes:
     - name: "$(params.charonConfigVol)"
       configMap:
         name: "$(params.charonConfig)"
+    - name: "$(params.charonAWSVol)"
+      secret:
+        secretName: "$(params.charonAWSCreds)"
   workspaces:
     - name: data
