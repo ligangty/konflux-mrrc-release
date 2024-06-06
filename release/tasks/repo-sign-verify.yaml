@@ -1,0 +1,37 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: konflux-mrrc-repo-sign-verify
+spec:
+  params:
+    - name: dataJsonPath
+      description: path to data json file
+    - name: pubKeyVol
+      description: the secret mount volume name for cosign verify pub key
+      type: string
+      default: "pubKeyVol"
+    - name: pubKeyFile
+      type: string
+      default: "cosign.pub"
+    - name: pubKey
+      type: string
+      default: "test-cosign-pub-key"
+  steps:
+    - name: verify-repo-signature
+      image: quay.io/ligangty/image-util:latest
+      script: |
+        set -eux
+        jsonData=$(cat $(params.dataJsonPath))
+        zipRegistry=$(echo $jsonData | jq -r '.product.zipRegistry')
+        echo "Verify the maven repo zip $(zipRegistry)"
+        cosign verify --key /home/konflux/.cosign/$(params.pubKeyFile) $zipRegistry
+      workingDir: $(workspaces.data.path)
+      volumeMounts:
+        - name: "$(params.pubKey)"
+          mountPath: "/home/konflux/.cosign/"
+  volumes:
+    - name: "$(params.pubKey)"
+      secret:
+        secretName: "$(params.pubKey)"
+  workspaces:
+    - name: data

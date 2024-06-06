@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: konflux-mrrc-help
+  name: konflux-mrrc-charon
 spec:
   params:
     - name: dataJsonPath
@@ -42,8 +42,6 @@ spec:
             eval "export $i=$(echo $awsEnvs | jq .$i)" 
           done
         fi
-        ls -la
-        ls -l $(params.mavenRepoPath)
         echo "Release $productName-$productVersion into $target"
         charon upload -p $productName -v $productVersion -t $target $(params.mavenRepoPath)
       workingDir: $(workspaces.data.path)

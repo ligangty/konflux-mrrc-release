@@ -36,14 +36,6 @@ spec:
       type: string
       description: The revision in the taskGitUrl repo to be used
       default: production
-    - name: productName
-      type: string
-      description: The name of the product
-      default: "test-product"
-    - name: productVersion
-      type: string
-      description: The version of the product
-      default: "1.0.0"
   workspaces:
     - name: data
   resources:
@@ -82,6 +74,24 @@ spec:
       workspaces:
         - name: data
           workspace: release-workspace
+    - name: repo-signature-verify
+      taskRef:
+        resolver: "git"
+        params:
+          - name: url
+            value: $(params.taskGitUrl)
+          - name: revision
+            value: $(params.taskGitRevision)
+          - name: pathInRepo
+            value: release/tasks/repo-sign-verify.yaml
+      params:
+        - name: dataJsonPath
+          value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
+      workspaces:
+        - name: data
+          workspace: release-workspace
+      runAfter:
+        - collect-data
     - name: repo-download
       taskRef:
         resolver: "git"
@@ -101,7 +111,7 @@ spec:
         - name: data
           workspace: release-workspace
       runAfter:
-        - collect-data
+        - repo-signature-verify
     - name: charon
       taskRef:
         resolver: "git"
