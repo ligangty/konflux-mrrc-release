@@ -1,0 +1,14 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: konflux-mrrc-release-1
+  namespace: gli2-tenant
+spec:
+  releasePlan: konflux-mrrc-release-plan
+  snapshot: $yoursnapshot
+  data:
+    product:
+      name: activemq
+      version: 0.0.1
+      zipRegistry: quay.io/ligangty/activemq.zip:0.0.1
+    target: $targetForRonda
