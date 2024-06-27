@@ -4,7 +4,6 @@ metadata:
   name: charon-configs
   labels:
     app: konflux-mrrc-release
-  namespace: gli2-tenant
 data:
   charon.yaml: >
     #aws_profile: ${profile}

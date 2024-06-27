@@ -2,7 +2,6 @@ apiVersion: appstudio.redhat.com/v1alpha1
 kind: EnterpriseContractPolicy
 metadata:
   name: konflux-mrrc-release-policy
-  namespace: gli2-tenant
 spec:
   configuration:
     include:

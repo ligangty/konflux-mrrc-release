@@ -6,7 +6,6 @@ metadata:
     release.appstudio.openshift.io/auto-release: 'true'
     release.appstudio.openshift.io/standing-attribution: 'true'
   name: konflux-mrrc-release-plan
-  namespace: gli2-tenant
 spec:
   application: konflux-mrrc-release
   target: gli2-tenant

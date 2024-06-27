@@ -11,4 +11,4 @@ spec:
       name: activemq
       version: 0.0.1
       zipRegistry: quay.io/ligangty/activemq.zip:0.0.1
-    target: $targetForRonda
+    target: $targetForRonda # Becareful: not to use target for production env 
