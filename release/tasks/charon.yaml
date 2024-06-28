@@ -25,7 +25,7 @@ spec:
       default: "charon-aws-credentials"
   steps:
     - name: upload-maven-repo
-      image: quay.io/redhat-user-workloads/spmm-dev-charon-tenant/charon/charon:86cc4dd6006cb9c89bd74e9ad99d0bad4714a5eb
+      image: quay.io/redhat-user-workloads/charon-spmmfea-tenant/charon/charon:e63303fe02f2bff19fe5697268175ba39d482498
       script: |
         set -eux
         jsonData=$(cat $(params.dataJsonPath))
