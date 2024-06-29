@@ -4,8 +4,8 @@ metadata:
   name: konflux-mrrc-repo-sign-verify
 spec:
   params:
-    - name: dataJsonPath
-      description: path to data json file
+    - name: mrrcEnvFilePath
+      description: path to mrrc env file
     - name: pubKeyVol
       description: the secret mount volume name for cosign verify pub key
       type: string
@@ -18,13 +18,12 @@ spec:
       default: "test-cosign-pub-key"
   steps:
     - name: verify-repo-signature
-      image: quay.io/ligangty/image-util:latest
+      image: registry.redhat.io/rhtas/cosign-rhel9:1.0.1 
       script: |
         set -eux
-        jsonData=$(cat $(params.dataJsonPath))
-        zipRegistry=$(echo $jsonData | jq -r '.product.zipRegistry')
-        echo "Verify the maven repo zip $(zipRegistry)"
-        cosign verify --key /home/konflux/.cosign/$(params.pubKeyFile) $zipRegistry
+        source $(params.mrrcEnvFilePath)
+        echo "Verify the maven repo zip $MRRC_ZIP_REGISTRY"
+        cosign verify --key /home/konflux/.cosign/$(params.pubKeyFile) $MRRC_ZIP_REGISTRY
       workingDir: $(workspaces.data.path)
       volumeMounts:
         - name: "$(params.pubKey)"

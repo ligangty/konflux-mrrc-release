@@ -4,27 +4,25 @@ metadata:
   name: konflux-mrrc-repo-dowload
 spec:
   params:
-    - name: dataJsonPath
-      description: path to data json file
-    - name: repoStorePath
-      description: path to store the repo zip
+    - name: mrrcEnvFilePath
+      description: path to mrrc env file
   results:
     - name: repoPath
       description: path of the maven repo zip downloaded
   steps:
     - name: download-maven-repo
-      image: quay.io/ligangty/image-util:latest
+      image: quay.io/konflux-ci/oras:latest
       script: |
         set -eux
-        jsonData=$(cat $(params.dataJsonPath))
-        zipRegistry=$(echo $jsonData | jq -r '.product.zipRegistry')
-        echo "Downloading the maven repo zip $(zipRegistry) to $(params.repoStorePath)"
-        cd $(params.repoStorePath)
+        source $(params.mrrcEnvFilePath)
+        echo "Downloading the maven repo zip $MRRC_ZIP_REGISTRY"
+        cd $(workspaces.data.path)
         mkdir maven-repo
         cd maven-repo
-        oras pull $zipRegistry
+        oras pull $MRRC_ZIP_REGISTRY
         repoName=$(ls *.zip)
-        echo -n "maven-repo/$repoName" > "$(results.repoPath.path)"
+        currentPath=$(pwd)
+        echo -n "$currentPath/$repoName" > "$(results.repoPath.path)"
       workingDir: $(workspaces.data.path)
   workspaces:
     - name: data

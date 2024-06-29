@@ -1,0 +1,45 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: konflux-mrrc-collect-env
+spec:
+  params:
+    - name: dataJsonPath
+      description: path to data json file
+  results:
+    - name: envFilePath
+      description: path of the env file for following tasks
+  steps:
+    - name: collect-env
+      image: quay.io/konflux-ci/yq:latest
+      script: |
+        set -eux
+        cd $(workspaces.data.path)
+        mrrcEnvFile="./mrrc_env.sh"
+        if [ -f $mrrcEnvFile ]; then
+          rm $mrrcEnvFile
+        fi
+
+        zipRegistry=$(yq -r '.product.zipRegistry' $(params.dataJsonPath))
+        echo "export MRRC_ZIP_REGISTRY=$zipRegistry" >> $mrrcEnvFile
+        target=$(yq -r '.target' $(params.dataJsonPath))
+        if [ "$target" == "" ] && [ "$target" == "null" ]; then
+          target="dev-maven-ga"
+        fi
+        echo "export MRRC_TARGET=$target" >> $mrrcEnvFile
+        productName=$(yq -r '.product.name' $(params.dataJsonPath))
+        productVersion=$(yq -r '.product.version' $(params.dataJsonPath))
+        echo "export MRRC_PRODUCT_NAME=$productName" >> $mrrcEnvFile
+        echo "export MRRC_PRODUCT_VERSION=$productVersion" >> $mrrcEnvFile
+        awsEnvs=$(yq -r '.awsEnvs' $(params.dataJsonPath)) 
+        if [ "$awsEnvs" != "" ] && [ "$awsEnvs" != "null" ]; then 
+          for i in $(echo $awsEnvs | yq -r "keys" | tr -d '"' | awk '{print $2}'); do
+            aws_value=$(echo $awsEnvs | yq -r .$i)
+            echo "export $i=$aws_value" >> $mrrcEnvFile
+          done
+        fi
+        currentPath=$(pwd)
+        echo -n "$currentPath/$mrrcEnvFile" > "$(results.envFilePath.path)"
+      workingDir: $(workspaces.data.path)
+  workspaces:
+    - name: data

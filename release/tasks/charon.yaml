@@ -4,8 +4,8 @@ metadata:
   name: konflux-mrrc-charon
 spec:
   params:
-    - name: dataJsonPath
-      description: path to data json file
+    - name: mrrcEnvFilePath
+      description: path to mrrc env file
     - name: mavenRepoPath
       description: path of the maven repo zip to upload
     - name: charonConfig
@@ -28,20 +28,11 @@ spec:
       image: quay.io/redhat-user-workloads/charon-spmmfea-tenant/charon/charon:e63303fe02f2bff19fe5697268175ba39d482498
       script: |
         set -eux
-        jsonData=$(cat $(params.dataJsonPath))
-        target=$(echo $jsonData | jq -r '.target')
-        if [ "$target" == "" ] && [ "$target" == "null" ]; then
-          target="prod-maven-ga"
-        fi
-        productName=$(echo $jsonData | jq -r '.product.name')
-        productVersion=$(echo $jsonData | jq -r '.product.version')
-        productZipUrl=$(echo $jsonData | jq -r '.product.zipUrl')
-        awsEnvs=$(echo $jsonData | jq '.awsEnvs') 
-        if [ "$awsEnvs" != "" ] && [ "$awsEnvs" != "null" ]; then 
-          for i in $(echo $awsEnvs | jq 'keys[]'); do
-            eval "export $i=$(echo $awsEnvs | jq .$i)" 
-          done
-        fi
+        cd $(workspaces.data.path)
+        source $(params.mrrcEnvFilePath)
+        target=$MRRC_TARGET
+        productName=$MRRC_PRODUCT_NAME
+        productVersion=$MRRC_PRODUCT_VERSION
         echo "Release $productName-$productVersion into $target"
         charon upload -p $productName -v $productVersion -t $target $(params.mavenRepoPath)
       workingDir: $(workspaces.data.path)

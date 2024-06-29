@@ -74,6 +74,24 @@ spec:
       workspaces:
         - name: data
           workspace: release-workspace
+    - name: collect-mrrc-env
+      taskRef:
+        resolver: "git"
+        params:
+          - name: url
+            value: $(params.taskGitUrl)
+          - name: revision
+            value: $(params.taskGitRevision)
+          - name: pathInRepo
+            value: release/tasks/collect-env.yaml
+      params:
+        - name: dataJsonPath
+          value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
+      workspaces:
+        - name: data
+          workspace: release-workspace
+      runAfter:
+        - collect-data
     - name: repo-signature-verify
       taskRef:
         resolver: "git"
@@ -85,13 +103,13 @@ spec:
           - name: pathInRepo
             value: release/tasks/repo-sign-verify.yaml
       params:
-        - name: dataJsonPath
-          value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
+        - name: mrrcEnvFilePath
+          value: "$(tasks.collect-mrrc-env.results.envFilePath)"
       workspaces:
         - name: data
           workspace: release-workspace
       runAfter:
-        - collect-data
+        - collect-mrrc-env
     - name: repo-download
       taskRef:
         resolver: "git"
@@ -103,8 +121,8 @@ spec:
           - name: pathInRepo
             value: release/tasks/repo-download.yaml
       params:
-        - name: dataJsonPath
-          value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
+        - name: mrrcEnvFilePath
+          value: "$(tasks.collect-mrrc-env.results.envFilePath)"
         - name: repoStorePath
           value: "$(workspaces.data.path)"
       workspaces:
@@ -123,8 +141,8 @@ spec:
           - name: pathInRepo
             value: release/tasks/charon.yaml
       params:
-        - name: dataJsonPath
-          value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
+        - name: mrrcEnvFilePath
+          value: "$(tasks.collect-mrrc-env.results.envFilePath)"
         - name: mavenRepoPath
           value: "$(tasks.repo-download.results.repoPath)"
       workspaces:
