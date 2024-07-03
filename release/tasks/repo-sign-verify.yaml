@@ -9,11 +9,13 @@ spec:
     - name: pubKeyVol
       description: the secret mount volume name for cosign verify pub key
       type: string
-      default: "pubKeyVol"
+      default: "pub-key-vol"
     - name: pubKeyFile
+      description: the pub key file name for cosign verification
       type: string
       default: "cosign.pub"
-    - name: pubKey
+    - name: pubKeySecName
+      description: the secret name for cosign verify pub key
       type: string
       default: "test-cosign-pub-key"
   steps:
@@ -26,11 +28,11 @@ spec:
         cosign verify --key /home/konflux/.cosign/$(params.pubKeyFile) $MRRC_ZIP_REGISTRY
       workingDir: $(workspaces.data.path)
       volumeMounts:
-        - name: "$(params.pubKey)"
+        - name: "$(params.pubKeyVol)"
           mountPath: "/home/konflux/.cosign/"
   volumes:
-    - name: "$(params.pubKey)"
+    - name: "$(params.pubKeyVol)"
       secret:
-        secretName: "$(params.pubKey)"
+        secretName: "$(params.pubKeySecName)"
   workspaces:
     - name: data

@@ -123,8 +123,6 @@ spec:
       params:
         - name: mrrcEnvFilePath
           value: "$(tasks.collect-mrrc-env.results.envFilePath)"
-        - name: repoStorePath
-          value: "$(workspaces.data.path)"
       workspaces:
         - name: data
           workspace: release-workspace
