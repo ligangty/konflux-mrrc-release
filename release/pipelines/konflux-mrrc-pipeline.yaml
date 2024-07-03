@@ -17,10 +17,6 @@ spec:
     - name: releasePlanAdmission
     - name: releaseServiceConfig
     - name: snapshot
-    # - name: postCleanUp
-    #   type: string
-    #   description: Cleans up workspace after finishing executing the pipeline
-    #   default: "true"
     - name: taskGitUrl
       type: string
       description: The url to the git repo where the release-service-catalog tasks to be used are stored
@@ -36,17 +32,6 @@ spec:
       type: string
       description: The revision in the taskGitUrl repo to be used
       default: production
-  # workspaces:
-  #   - name: data
-  # resources:
-  #   - name: release
-  #     type: "tekton.dev/v1beta1/PipelineRun"
-  #     params:
-  #       - name: pipelineRef
-  #         value: "release-pipeline"
-  #       - name: serviceAccount
-  #         value: "release-service-catalog"
-  #       - name: namespace
   workspaces:
     - name: release-workspace
   tasks:
@@ -74,7 +59,7 @@ spec:
       workspaces:
         - name: data
           workspace: release-workspace
-    - name: collect-mrrc-env
+    - name: mrrc-publish
       taskRef:
         resolver: "git"
         params:
@@ -83,7 +68,7 @@ spec:
           - name: revision
             value: $(params.taskGitRevision)
           - name: pathInRepo
-            value: release/tasks/collect-env.yaml
+            value: release/tasks/mrrc-publish.yaml
       params:
         - name: dataJsonPath
           value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
@@ -92,82 +77,3 @@ spec:
           workspace: release-workspace
       runAfter:
         - collect-data
-    - name: repo-signature-verify
-      taskRef:
-        resolver: "git"
-        params:
-          - name: url
-            value: $(params.taskGitUrl)
-          - name: revision
-            value: $(params.taskGitRevision)
-          - name: pathInRepo
-            value: release/tasks/repo-sign-verify.yaml
-      params:
-        - name: mrrcEnvFilePath
-          value: "$(tasks.collect-mrrc-env.results.envFilePath)"
-      workspaces:
-        - name: data
-          workspace: release-workspace
-      runAfter:
-        - collect-mrrc-env
-    - name: repo-download
-      taskRef:
-        resolver: "git"
-        params:
-          - name: url
-            value: $(params.taskGitUrl)
-          - name: revision
-            value: $(params.taskGitRevision)
-          - name: pathInRepo
-            value: release/tasks/repo-download.yaml
-      params:
-        - name: mrrcEnvFilePath
-          value: "$(tasks.collect-mrrc-env.results.envFilePath)"
-      workspaces:
-        - name: data
-          workspace: release-workspace
-      runAfter:
-        - repo-signature-verify
-    - name: charon
-      taskRef:
-        resolver: "git"
-        params:
-          - name: url
-            value: $(params.taskGitUrl)
-          - name: revision
-            value: $(params.taskGitRevision)
-          - name: pathInRepo
-            value: release/tasks/charon.yaml
-      params:
-        - name: mrrcEnvFilePath
-          value: "$(tasks.collect-mrrc-env.results.envFilePath)"
-        - name: mavenRepoPath
-          value: "$(tasks.repo-download.results.repoPath)"
-      workspaces:
-        - name: data
-          workspace: release-workspace
-      runAfter:
-        - repo-download
-  # finally:
-  #   - name: cleanup
-  #     taskRef:
-  #       resolver: "git"
-  #       params:
-  #         - name: url
-  #           value: $(params.taskGitUrl)
-  #         - name: revision
-  #           value: $(params.taskGitRevision)
-  #         - name: pathInRepo
-  #           value: release/tasks/cleanup-workspace.yaml
-  #     when:
-  #       - input: $(params.postCleanUp)
-  #         operator: in
-  #         values: ["true"]
-  #     params:
-  #       - name: subdirectory
-  #         value: "$(context.pipelineRun.uid)"
-  #       - name: pipelineRunUid
-  #         value: $(context.pipelineRun.uid)
-  #     workspaces:
-  #       - name: data
-  #         workspace: release-workspace

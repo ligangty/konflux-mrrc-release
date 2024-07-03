@@ -5,8 +5,8 @@ metadata:
     release.appstudio.openshift.io/author: gli
     release.appstudio.openshift.io/auto-release: 'true'
     release.appstudio.openshift.io/standing-attribution: 'true'
-  name: konflux-mrrc-release-plan
+  name: konflux-mrrc-release-multisteps-plan
 spec:
-  application: konflux-mrrc-release
+  application: konflux-mrrc-release-multisteps
   target: gli2-tenant
  
