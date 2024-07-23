@@ -36,17 +36,17 @@ spec:
       type: string
       description: The revision in the taskGitUrl repo to be used
       default: production
-  workspaces:
-    - name: data
-  resources:
-    - name: release
-      type: "tekton.dev/v1beta1/PipelineRun"
-      params:
-        - name: pipelineRef
-          value: "release-pipeline"
-        - name: serviceAccount
-          value: "release-service-catalog"
-        - name: namespace
+  # workspaces:
+  #   - name: data
+  # resources:
+  #   - name: release
+  #     type: "tekton.dev/v1beta1/PipelineRun"
+  #     params:
+  #       - name: pipelineRef
+  #         value: "release-pipeline"
+  #       - name: serviceAccount
+  #         value: "release-service-catalog"
+  #       - name: namespace
   workspaces:
     - name: release-workspace
   tasks:
