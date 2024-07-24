@@ -18,7 +18,7 @@ spec:
         - name: revision
           value: multisteps
         - name: pathInRepo
-          value: "release/pipelines/konflux-mrrc-pipeline.yaml"
+          value: "release/pipelines/mrrc-release-pipeline.yaml"
     timeouts:
       pipeline: "1h0m0s"
     serviceAccountName: appstudio-pipeline

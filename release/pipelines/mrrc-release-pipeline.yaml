@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: konflux-mrrc-release-pipeline
+  name: mrrc-release-pipeline
   labels:
     app.kubernetes.io/version: "4.1.0"
   annotations:
