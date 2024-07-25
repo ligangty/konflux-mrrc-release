@@ -1,12 +1,12 @@
 apiVersion: appstudio.redhat.com/v1alpha1
 kind: ReleasePlanAdmission
 metadata:
-  name: konflux-mrrc-release-multisteps
+  name: konflux-mrrc-release
   labels:
     release.appstudio.openshift.io/auto-release: "true"
 spec:
   applications:
-    - konflux-mrrc-release-multisteps
+    - konflux-mrrc-release
   environment: konflux-mrrc-release
   origin: gli2-tenant
   pipeline:
@@ -16,7 +16,7 @@ spec:
         - name: url
           value: "https://github.com/ligangty/konflux-mrrc-release.git"
         - name: revision
-          value: multisteps
+          value: main
         - name: pathInRepo
           value: "release/pipelines/mrrc-release-pipeline.yaml"
     timeouts:

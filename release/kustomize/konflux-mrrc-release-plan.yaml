@@ -4,9 +4,10 @@ metadata:
   labels:
     release.appstudio.openshift.io/author: gli
     release.appstudio.openshift.io/auto-release: 'true'
+    release.appstudio.openshift.io/releasePlanAdmission: 'konflux-mrrc-release'
     release.appstudio.openshift.io/standing-attribution: 'true'
-  name: konflux-mrrc-release-multisteps-plan
+  name: konflux-mrrc-release-plan
 spec:
-  application: konflux-mrrc-release-multisteps
+  application: konflux-mrrc-release
   target: gli2-tenant
  

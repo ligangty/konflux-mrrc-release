@@ -37,15 +37,15 @@ spec:
           rm $mrrcEnvFile
         fi
 
-        zipRegistry=$(yq -r '.product.zipRegistry' $(params.dataJsonPath))
+        zipRegistry=$(yq -r '.zipRegistry' $(params.dataJsonPath))
         echo "export MRRC_ZIP_REGISTRY=$zipRegistry" >> $mrrcEnvFile
         target=$(yq -r '.target' $(params.dataJsonPath))
         if [ "$target" == "" ] && [ "$target" == "null" ]; then
           target="dev-maven-ga"
         fi
         echo "export MRRC_TARGET=$target" >> $mrrcEnvFile
-        productName=$(yq -r '.product.name' $(params.dataJsonPath))
-        productVersion=$(yq -r '.product.version' $(params.dataJsonPath))
+        productName=$(yq -r '.mrrc.product.name' $(params.dataJsonPath))
+        productVersion=$(yq -r '.mrrc.product.version' $(params.dataJsonPath))
         echo "export MRRC_PRODUCT_NAME=$productName" >> $mrrcEnvFile
         echo "export MRRC_PRODUCT_VERSION=$productVersion" >> $mrrcEnvFile
         awsEnvs=$(yq -r '.awsEnvs' $(params.dataJsonPath)) 
