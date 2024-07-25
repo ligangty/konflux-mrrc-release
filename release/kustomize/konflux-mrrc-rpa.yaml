@@ -9,6 +9,12 @@ spec:
     - konflux-mrrc-release
   environment: konflux-mrrc-release
   origin: gli2-tenant
+  policy: konflux-mrrc-release-policy
+  data:
+    mrrc:
+      release: ga
+      environment: dev
+      awsSecret: charon-aws-credentials
   pipeline:
     pipelineRef:
       resolver: git
@@ -22,4 +28,3 @@ spec:
     timeouts:
       pipeline: "1h0m0s"
     serviceAccountName: appstudio-pipeline
-  policy: konflux-mrrc-release-policy

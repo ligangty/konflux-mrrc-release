@@ -4,8 +4,9 @@ metadata:
   name: mrrc-publish
 spec:
   params:
-    - name: dataJsonPath
-      description: path to data json file
+    - name: mrrcParamFilePath
+      description: path of the env file for following tasks
+      type: string
     - name: cosignPubKeyFile
       description: the public key file name for cosign verification
       type: string
@@ -19,51 +20,15 @@ spec:
       type: string
       default: "charon-configs"
     - name: charonAWSSecret
+      description: the secret name for charon aws credential file
       type: string
-      default: "charon-aws-credentials"
-  results:
-    - name: envFilePath
-      description: path of the env file for following tasks
-    - name: repoPath
-      description: path of the maven repo zip downloaded
   steps:
-    - name: collect-env
-      image: quay.io/konflux-ci/yq:latest
-      script: |
-        set -eux
-        cd $(workspaces.data.path)
-        mrrcEnvFile="./mrrc_env.sh"
-        if [ -f $mrrcEnvFile ]; then
-          rm $mrrcEnvFile
-        fi
-
-        zipRegistry=$(yq -r '.zipRegistry' $(params.dataJsonPath))
-        echo "export MRRC_ZIP_REGISTRY=$zipRegistry" >> $mrrcEnvFile
-        target=$(yq -r '.target' $(params.dataJsonPath))
-        if [ "$target" == "" ] && [ "$target" == "null" ]; then
-          target="dev-maven-ga"
-        fi
-        echo "export MRRC_TARGET=$target" >> $mrrcEnvFile
-        productName=$(yq -r '.mrrc.product.name' $(params.dataJsonPath))
-        productVersion=$(yq -r '.mrrc.product.version' $(params.dataJsonPath))
-        echo "export MRRC_PRODUCT_NAME=$productName" >> $mrrcEnvFile
-        echo "export MRRC_PRODUCT_VERSION=$productVersion" >> $mrrcEnvFile
-        awsEnvs=$(yq -r '.awsEnvs' $(params.dataJsonPath)) 
-        if [ "$awsEnvs" != "" ] && [ "$awsEnvs" != "null" ]; then 
-          for i in $(echo $awsEnvs | yq -r "keys" | tr -d '"' | awk '{print $2}'); do
-            aws_value=$(echo $awsEnvs | yq -r .$i)
-            echo "export $i=$aws_value" >> $mrrcEnvFile
-          done
-        fi
-        currentPath=$(pwd)
-        echo -n "$currentPath/$mrrcEnvFile" > "$(results.envFilePath.path)"
-      workingDir: $(workspaces.data.path)
     - name: verify-repo-signature
       image: registry.redhat.io/rhtas/cosign-rhel9:1.0.1 
       script: |
         set -eux
         cd $(workspaces.data.path)
-        source ./mrrc_env.sh
+        source $(params.mrrcParamFilePath)
         echo "Verify the maven repo zip $MRRC_ZIP_REGISTRY"
         cosign verify --key /home/konflux/.cosign/$(params.cosignPubKeyFile) $MRRC_ZIP_REGISTRY
       workingDir: $(workspaces.data.path)
@@ -75,21 +40,18 @@ spec:
       script: |
         set -eux
         cd $(workspaces.data.path)
-        source ./mrrc_env.sh
+        source $(params.mrrcParamFilePath)
         echo "Downloading the maven repo zip $MRRC_ZIP_REGISTRY"
         mkdir maven-repo
         cd maven-repo
         oras pull $MRRC_ZIP_REGISTRY
-        repoName=$(ls *.zip)
-        currentPath=$(pwd)
-        echo -n "$currentPath/$repoName" > "$(results.repoPath.path)"
       workingDir: $(workspaces.data.path)
     - name: upload-maven-repo
       image: quay.io/ligangty/charon:latest
       script: |
         set -eux
         cd $(workspaces.data.path)
-        source ./mrrc_env.sh
+        source $(params.mrrcParamFilePath)
         target=$MRRC_TARGET
         productName=$MRRC_PRODUCT_NAME
         productVersion=$MRRC_PRODUCT_VERSION

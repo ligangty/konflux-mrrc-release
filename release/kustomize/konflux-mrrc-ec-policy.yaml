@@ -3,15 +3,39 @@ kind: EnterpriseContractPolicy
 metadata:
   name: konflux-mrrc-release-policy
 spec:
-  configuration:
-    include:
-      - '@builtin'
-  description: Includes rules for shipping konflux-mrrc-release
-  publicKey: k8s://openshift-pipelines/public-key
+  description: 'Rules for shipping AI models to registry.redhat.io - RHELAI-6'
+  publicKey: 'k8s://openshift-pipelines/public-key'
   sources:
-  - data:
-    - github.com/release-engineering/rhtap-ec-policy//data
-    - oci::quay.io/redhat-appstudio-tekton-catalog/data-acceptable-bundles:latest
-    name: Default
-    policy:
-    - oci::quay.io/enterprise-contract/ec-release-policy:latest
+    - name: Release Policies
+      data:
+        - github.com/release-engineering/rhtap-ec-policy//data
+        - oci::quay.io/konflux-ci/tekton-catalog/data-acceptable-bundles:latest
+      policy:
+        - oci::quay.io/enterprise-contract/ec-release-policy:git-cd29f49@sha256:6817c74e8cf290e3812790df26ffaa1e0efa4e0f3490e39259fc61a6d3688fdb
+      # ruleData:
+      #   allowed_external_references:
+      #     - type: distribution
+      #       url: '^https://huggingface.co/(mistralai|ibm-granite|prometheus-eval)/.*$'
+      config:
+        include:
+          - '@redhat'
+          # Not included by default
+          - sbom_cyclonedx.allowed_package_external_references
+        exclude:
+          - labels.required_labels
+          - cve.cve_results_found
+          - test.test_data_found
+          - tasks.required_tasks_found:clair-scan
+          - tasks.required_tasks_found:clamav-scan
+          - tasks.required_tasks_found:prefetch-dependencies
+          - tasks.required_tasks_found:prefetch-dependencies-oci-ta
+          - tasks.required_tasks_found:sast-snyk-check
+          - tasks.required_tasks_found:sast-snyk-check-oci-ta
+          - tasks.required_tasks_found:source-build
+          - tasks.required_tasks_found:source-build-oci-ta
+          - hermetic_build_task.build_task_hermetic
+          - base_image_registries.base_image_info_found
+          - redhat_manifests.redhat_manifests_missing:root/buildinfo/content_manifests/sbom-purl.json
+          - source_image.exists
+          - sbom_cyclonedx.found
+

@@ -1,16 +1,24 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: konflux-mrrc-collect-env
+  name: collect-mrrc-params
 spec:
   params:
     - name: dataJsonPath
       description: path to data json file
   results:
-    - name: envFilePath
+    - name: mrrcParamFilePath
       description: path of the env file for following tasks
+    - name: cosignPubKeyFile
+      description: the public key file name for cosign verification
+    - name: cosignPubKeySecret
+      description: the secret name for cosign verify public key
+    - name: charonConfigMap
+      description: the configmap name for charon configs
+    - name: charonAWSSecret
+      description: the secret name for charon aws credential file
   steps:
-    - name: collect-env
+    - name: collect-mrrc-params
       image: quay.io/konflux-ci/yq:latest
       script: |
         set -eux
@@ -20,17 +28,22 @@ spec:
           rm $mrrcEnvFile
         fi
 
-        zipRegistry=$(yq -r '.product.zipRegistry' $(params.dataJsonPath))
+        zipRegistry=$(yq -r '.zipRegistry' $(params.dataJsonPath))
         echo "export MRRC_ZIP_REGISTRY=$zipRegistry" >> $mrrcEnvFile
-        target=$(yq -r '.target' $(params.dataJsonPath))
-        if [ "$target" == "" ] && [ "$target" == "null" ]; then
-          target="dev-maven-ga"
-        fi
+
+        environment=$(yq -r '.mrrc.environment' $(params.dataJsonPath))
+        release=$(yq -r '.mrrc.release' $(params.dataJsonPath))
+        target=$environment-maven-$release
         echo "export MRRC_TARGET=$target" >> $mrrcEnvFile
-        productName=$(yq -r '.product.name' $(params.dataJsonPath))
-        productVersion=$(yq -r '.product.version' $(params.dataJsonPath))
+
+        productName=$(yq -r '.mrrc.product.name' $(params.dataJsonPath))
+        productVersion=$(yq -r '.mrrc.product.version' $(params.dataJsonPath))
         echo "export MRRC_PRODUCT_NAME=$productName" >> $mrrcEnvFile
         echo "export MRRC_PRODUCT_VERSION=$productVersion" >> $mrrcEnvFile
+
+        awsSecret=$(yq -r '.mrrc.awsSecret' $(params.dataJsonPath))
+        echo -n "$awsSecret" > "$(results.charonAWSSecret.path)"
+
         awsEnvs=$(yq -r '.awsEnvs' $(params.dataJsonPath)) 
         if [ "$awsEnvs" != "" ] && [ "$awsEnvs" != "null" ]; then 
           for i in $(echo $awsEnvs | yq -r "keys" | tr -d '"' | awk '{print $2}'); do
@@ -39,7 +52,7 @@ spec:
           done
         fi
         currentPath=$(pwd)
-        echo -n "$currentPath/$mrrcEnvFile" > "$(results.envFilePath.path)"
+        echo -n "$currentPath/$mrrcEnvFile" > "$(results.mrrcParamFilePath.path)"
       workingDir: $(workspaces.data.path)
   workspaces:
     - name: data
