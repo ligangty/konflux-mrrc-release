@@ -15,10 +15,6 @@ spec:
       description: the secret name for cosign verify public key
       type: string
       default: "test-cosign-pub-key"
-    - name: charonConfig
-      description: the configmap name for charon configs
-      type: string
-      default: "charon-configs"
     - name: charonAWSSecret
       description: the secret name for charon aws credential file
       type: string
@@ -70,7 +66,7 @@ spec:
         secretName: "$(params.cosignPubKeySecret)"
     - name: "charon-configs-vol"
       configMap:
-        name: "$(params.charonConfig)"
+        name: "charon-configs"
     - name: "charon-aws-vol"
       secret:
         secretName: "$(params.charonAWSSecret)"

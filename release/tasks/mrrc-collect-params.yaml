@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: collect-mrrc-params
+  name: mrrc-collect-params
 spec:
   params:
     - name: dataJsonPath
@@ -13,15 +13,14 @@ spec:
       description: the public key file name for cosign verification
     - name: cosignPubKeySecret
       description: the secret name for cosign verify public key
-    - name: charonConfigMap
-      description: the configmap name for charon configs
     - name: charonAWSSecret
       description: the secret name for charon aws credential file
   steps:
-    - name: collect-mrrc-params
+    - name: mrrc-collect-params
       image: quay.io/konflux-ci/yq:latest
       script: |
         set -eux
+
         cd $(workspaces.data.path)
         mrrcEnvFile="./mrrc_env.sh"
         if [ -f $mrrcEnvFile ]; then
@@ -44,13 +43,16 @@ spec:
         awsSecret=$(yq -r '.mrrc.awsSecret' $(params.dataJsonPath))
         echo -n "$awsSecret" > "$(results.charonAWSSecret.path)"
 
-        awsEnvs=$(yq -r '.awsEnvs' $(params.dataJsonPath)) 
-        if [ "$awsEnvs" != "" ] && [ "$awsEnvs" != "null" ]; then 
-          for i in $(echo $awsEnvs | yq -r "keys" | tr -d '"' | awk '{print $2}'); do
-            aws_value=$(echo $awsEnvs | yq -r .$i)
-            echo "export $i=$aws_value" >> $mrrcEnvFile
-          done
+        consignPubKey=$(yq -r '.cosignPubKeyFile' $(params.dataJsonPath))
+        if [ "$consignPubKey" != "" ] && [ "$consignPubKey" != "null" ]; then 
+          echo -n "$consignPubKey" > "$(results.cosignPubKeyFile.path)"
         fi
+
+        cosignPubKeySec=$(yq -r '.cosignPubKeySecret' $(params.dataJsonPath))
+        if [ "$cosignPubKeySec" != "" ] && [ "$cosignPubKeySec" != "null" ]; then 
+          echo -n "$cosignPubKeySec" > "$(results.cosignPubKeySecret.path)"
+        fi
+
         currentPath=$(pwd)
         echo -n "$currentPath/$mrrcEnvFile" > "$(results.mrrcParamFilePath.path)"
       workingDir: $(workspaces.data.path)

@@ -59,7 +59,7 @@ spec:
       workspaces:
         - name: data
           workspace: release-workspace
-    - name: collect-mrrc-params
+    - name: mrrc-collect-params
       taskRef:
         resolver: "git"
         params:
@@ -68,7 +68,7 @@ spec:
           - name: revision
             value: $(params.taskGitRevision)
           - name: pathInRepo
-            value: release/tasks/collect-mrrc-params.yaml
+            value: release/tasks/mrrc-collect-params.yaml
       params:
         - name: dataJsonPath
           value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
@@ -89,11 +89,11 @@ spec:
             value: release/tasks/mrrc-publish.yaml
       params:
         - name: mrrcParamFilePath
-          value: "$(tasks.collect-mrrc-params.results.mrrcParamFilePath)"
+          value: "$(tasks.mrrc-collect-params.results.mrrcParamFilePath)"
         - name: charonAWSSecret
-          value: "$(tasks.collect-mrrc-params.results.charonAWSSecret)"
+          value: "$(tasks.mrrc-collect-params.results.charonAWSSecret)"
       workspaces:
         - name: data
           workspace: release-workspace
       runAfter:
-        - collect-data
+        - mrrc-collect-params
