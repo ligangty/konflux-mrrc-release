@@ -1,0 +1,51 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: collect-mrrc-params
+spec:
+  params:
+    - name: dataJsonPath
+      type: string
+      description: path to data json file
+  results:
+    - name: mrrcParamFilePath
+      description: path of the env file for following tasks
+    - name: cosignPubKeySecret
+      description: the secret name for cosign verify public key
+    - name: charonAWSSecret
+      description: the secret name for charon aws credential file
+  steps:
+    - name: collect-mrrc-params
+      image: quay.io/konflux-ci/release-service-utils:e633d51cd41d73e4b3310face21bb980af7a662f
+      script: |
+        set -eux
+
+        cd $(workspaces.data.path)
+        MRRC_ENV_FILE_PATH="$(dirname $(params.dataJsonPath))/mrrc.env"
+
+        zipRegistry=$(jq -r '.zipRegistry' $(params.dataJsonPath))
+        echo "export MRRC_ZIP_REGISTRY=$zipRegistry" >> $MRRC_ENV_FILE_PATH
+
+        environment=$(jq -r '.mrrc.environment' $(params.dataJsonPath))
+        release=$(jq -r '.mrrc.release' $(params.dataJsonPath))
+        target=$environment-maven-$release
+        echo "export MRRC_TARGET=$target" >> $MRRC_ENV_FILE_PATH
+
+        productName=$(jq -r '.mrrc.product.name' $(params.dataJsonPath))
+        productVersion=$(jq -r '.mrrc.product.version' $(params.dataJsonPath))
+        echo "export MRRC_PRODUCT_NAME=$productName" >> $MRRC_ENV_FILE_PATH
+        echo "export MRRC_PRODUCT_VERSION=$productVersion" >> $MRRC_ENV_FILE_PATH
+
+        awsSecret=$(jq -r '.mrrc.awsSecret' $(params.dataJsonPath))
+        echo -n "$awsSecret" > "$(results.charonAWSSecret.path)"
+
+        cosignPubKeySec=$(jq -r '.cosignPubKeySecret' $(params.dataJsonPath))
+        if [ "$cosignPubKeySec" != "null" ]; then 
+          echo -n "$cosignPubKeySec" > "$(results.cosignPubKeySecret.path)"
+        fi
+
+        echo -n "$MRRC_ENV_FILE_PATH" > "$(results.mrrcParamFilePath.path)"
+      workingDir: $(workspaces.data.path)
+  workspaces:
+    - name: data

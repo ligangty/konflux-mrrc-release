@@ -7,10 +7,6 @@ spec:
     - name: mrrcParamFilePath
       description: path of the env file for following tasks
       type: string
-    - name: cosignPubKeyFile
-      description: the public key file name for cosign verification
-      type: string
-      default: "cosign.pub"
     - name: cosignPubKeySecret
       description: the secret name for cosign verify public key
       type: string
@@ -26,7 +22,7 @@ spec:
         cd $(workspaces.data.path)
         source $(params.mrrcParamFilePath)
         echo "Verify the maven repo zip $MRRC_ZIP_REGISTRY"
-        cosign verify --key /home/konflux/.cosign/$(params.cosignPubKeyFile) $MRRC_ZIP_REGISTRY
+        cosign verify --key /home/konflux/.cosign/cosign.pub $MRRC_ZIP_REGISTRY
       workingDir: $(workspaces.data.path)
       volumeMounts:
         - name: "pub-key-vol"

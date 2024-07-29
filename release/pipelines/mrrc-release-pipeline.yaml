@@ -56,10 +56,12 @@ spec:
           value: $(params.releaseServiceConfig)
         - name: snapshot
           value: $(params.snapshot)
+        - name: subdirectory
+          value: $(context.pipelineRun.uid)
       workspaces:
         - name: data
           workspace: release-workspace
-    - name: mrrc-collect-params
+    - name: collect-mrrc-params
       taskRef:
         resolver: "git"
         params:
@@ -68,7 +70,7 @@ spec:
           - name: revision
             value: $(params.taskGitRevision)
           - name: pathInRepo
-            value: release/tasks/mrrc-collect-params.yaml
+            value: release/tasks/collect-mrrc-params.yaml
       params:
         - name: dataJsonPath
           value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
@@ -89,11 +91,11 @@ spec:
             value: release/tasks/mrrc-publish.yaml
       params:
         - name: mrrcParamFilePath
-          value: "$(tasks.mrrc-collect-params.results.mrrcParamFilePath)"
+          value: "$(tasks.collect-mrrc-params.results.mrrcParamFilePath)"
         - name: charonAWSSecret
-          value: "$(tasks.mrrc-collect-params.results.charonAWSSecret)"
+          value: "$(tasks.collect-mrrc-params.results.charonAWSSecret)"
       workspaces:
         - name: data
           workspace: release-workspace
       runAfter:
-        - mrrc-collect-params
+        - collect-mrrc-params
