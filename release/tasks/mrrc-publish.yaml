@@ -28,7 +28,7 @@ spec:
         - name: "pub-key-vol"
           mountPath: "/home/konflux/.cosign/"
     - name: download-maven-repo
-      image: quay.io/konflux-ci/oras:latest
+      image: quay.io/konflux-ci/oras:477ee20f7e6d146ea203c4aaa0507f4d1e925a53
       script: |
         set -eux
         cd $(workspaces.data.path)
@@ -39,7 +39,7 @@ spec:
         oras pull $MRRC_ZIP_REGISTRY
       workingDir: $(workspaces.data.path)
     - name: upload-maven-repo
-      image: quay.io/ligangty/charon:latest
+      image: quay.io/redhat-services-prod/spmm-charon-containe-tenant/charon:e9312870607e2ba335231047af9ea81a03e52778
       script: |
         set -eux
         cd $(workspaces.data.path)
