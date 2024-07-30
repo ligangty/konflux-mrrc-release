@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cosign-pub-key
+  labels:
+    app: konflux-mrrc-release
+data:
+  cosign.pub: |
+    -----BEGIN PUBLIC KEY-----
+    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEUYG/wXttlElANB2otYZxoWU9r3Yn
+    avsNtdBenyHt631YlIhbx41QKsyyOxzlu/Huc0gk0xgIBrfuXt4Y9NvSUw==
+    -----END PUBLIC KEY-----
+

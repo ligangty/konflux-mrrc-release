@@ -1,5 +1,6 @@
-kind: ConfigMap
+---
 apiVersion: v1
+kind: ConfigMap
 metadata:
   name: charon-configs
   labels:
@@ -26,13 +27,12 @@ data:
     #detach_signature_command: "rpm-sign --detach-sign --key {{ key }} {{ file }}"
 
     targets:
-      stage-maven-ga:
-      - bucket: "stage-maven-ga"
+      dev-maven-ga:
+      - bucket: "dev-maven-bucket"
         prefix: ga
-      stage-maven-ea:
-      - bucket: "stage-maven-ea"
+      dev-maven-ea:
+      - bucket: "dev-maven-bucket"
         prefix: earlyaccess/all
-      stage-npm:
-      - bucket: "stage-npm-npmjs"
+      dev-npm:
+      - bucket: "dev-npm-npmjs-bucket"
         prefix: /
-        registry: "npm.stage.registry.redhat.com"

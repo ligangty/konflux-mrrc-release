@@ -94,6 +94,8 @@ spec:
           value: "$(tasks.collect-mrrc-params.results.mrrcParamFilePath)"
         - name: charonAWSSecret
           value: "$(tasks.collect-mrrc-params.results.charonAWSSecret)"
+        - name: cosignPubKeyConfig
+          value: "$(tasks.collect-mrrc-params.results.cosignPubKeyConfig)"
       workspaces:
         - name: data
           workspace: release-workspace

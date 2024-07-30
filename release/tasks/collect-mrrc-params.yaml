@@ -11,8 +11,8 @@ spec:
   results:
     - name: mrrcParamFilePath
       description: path of the env file for following tasks
-    - name: cosignPubKeySecret
-      description: the secret name for cosign verify public key
+    - name: cosignPubKeyConfig
+      description: the configmap name for cosign verify public key
     - name: charonAWSSecret
       description: the secret name for charon aws credential file
   steps:
@@ -40,10 +40,11 @@ spec:
         awsSecret=$(jq -r '.mrrc.awsSecret' $(params.dataJsonPath))
         echo -n "$awsSecret" > "$(results.charonAWSSecret.path)"
 
-        cosignPubKeySec=$(jq -r '.cosignPubKeySecret' $(params.dataJsonPath))
-        if [ "$cosignPubKeySec" != "null" ]; then 
-          echo -n "$cosignPubKeySec" > "$(results.cosignPubKeySecret.path)"
+        cosignPubKey=$(jq -r '.cosignPubKeyConfig' $(params.dataJsonPath))
+        if [ "$cosignPubKey" == "null" ]; then 
+          cosignPubKey="cosign-pub-key"
         fi
+        echo -n "$cosignPubKey" > "$(results.cosignPubKeyConfig.path)"
 
         echo -n "$MRRC_ENV_FILE_PATH" > "$(results.mrrcParamFilePath.path)"
       workingDir: $(workspaces.data.path)

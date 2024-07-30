@@ -7,10 +7,9 @@ spec:
     - name: mrrcParamFilePath
       description: path of the env file for following tasks
       type: string
-    - name: cosignPubKeySecret
-      description: the secret name for cosign verify public key
+    - name: cosignPubKeyConfig
+      description: the configmap name for cosign verify public key
       type: string
-      default: "test-cosign-pub-key"
     - name: charonAWSSecret
       description: the secret name for charon aws credential file
       type: string
@@ -58,8 +57,8 @@ spec:
           mountPath: "/home/charon/.aws"
   volumes:
     - name: "pub-key-vol"
-      secret:
-        secretName: "$(params.cosignPubKeySecret)"
+      configMap:
+        name: "$(params.cosignPubKeyConfig)"
     - name: "charon-configs-vol"
       configMap:
         name: "charon-configs"

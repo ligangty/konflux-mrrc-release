@@ -34,22 +34,14 @@ To create application, follow the standard Konflux guide to do it.
   kubectl(or oc) apply -k ./release/kustomize/ -n $your-tenant
   ```
 
-## Setup secrets of cosign keys for signature verification
+## Setup config of cosign pub keys for signature verification
 
 There is one task in pipeline which will verify the signature of the maven repo zip in oci registry. It will need the cosign.pub key to do.
 
-* In Konflux UI, click "Secrets" at the right column bar, then click "Add Secret" button to create secret as following:
+* Use the following command to create the configmap:
 
-  * Secret type: Key/value secret
-  * Secret name: test-cosign-pub-key
-  * Key: cosign.pub
-  * Value:
-
-  ``` plaintext
-  -----BEGIN PUBLIC KEY-----
-  MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEUYG/wXttlElANB2otYZxoWU9r3Yn
-  avsNtdBenyHt631YlIhbx41QKsyyOxzlu/Huc0gk0xgIBrfuXt4Y9NvSUw==
-  -----END PUBLIC KEY-----
+  ``` shell
+  kubectl(or oc) apply -f ./release/configs/cosign-pub-key-cm.yaml -n $your-tenant
   ```
 
 ## Setup charon configurations and AWS credentials
