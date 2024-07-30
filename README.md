@@ -135,3 +135,31 @@ cosign verify --key cosign.pub quay.io/$org/yourmavenrepo.zip:0.1
 ```
 
 This command is used in the task of "repo-sign-verify.yaml" as well. If you want to use your own key to test the whole pipeline, please don't forget to replace the cosign.pub in the secrets with your own.
+
+### Add the pull secret for charon image
+
+In recent version, we have built the official charon image in konflux supported organizations in quay.io and started to use it in the pipeline. As it is a private repo, we need to add authentication to be able to pull it down successfully. Here are the steps to do it:
+
+* Request access to the charon image registry: <https://quay.io/repository/redhat-services-prod/spmm-charon-containe-tenant/charon> from Konflux team.
+* When done, generate the user token(cli password) in quay.io of your username, and put it into a file with following format:
+
+```json
+{
+  "auths": {
+    "quay.io": {
+      "auth": "${your cli password}"
+    }
+  }
+}
+
+```
+
+* Use following command to create the dockercfg secret:
+
+```shell
+oc create secret generic charon-container \
+ --from-file=.dockerconfigjson=<path/to/your/jsonfile> \
+ --type=kubernetes.io/dockerconfigjson
+```
+
+* Add above secret into your namespace's serviceaccount which can start the pipelinerun. Generally this sa should be "appstudio-pipeline". Please add above secret name into "imagePullSecrets" and "secrets" section.
