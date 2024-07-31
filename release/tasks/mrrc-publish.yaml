@@ -5,7 +5,7 @@ metadata:
 spec:
   params:
     - name: mrrcParamFilePath
-      description: path of the env file for following tasks
+      description: path of the env file for mrrc parameters to use
       type: string
     - name: cosignPubKeyConfig
       description: the configmap name for cosign verify public key
@@ -31,8 +31,9 @@ spec:
         set -eux
         . "$(params.mrrcParamFilePath)"
         echo "Downloading the maven repo zip $MRRC_ZIP_REGISTRY"
-        mkdir maven-repo
-        cd maven-repo
+        work_dir="$(dirname $(params.mrrcParamFilePath))/mrrc"
+        mkdir $work_dir
+        cd $work_dir
         oras pull $MRRC_ZIP_REGISTRY
       workingDir: $(workspaces.data.path)
     - name: upload-maven-repo
@@ -43,7 +44,8 @@ spec:
         target=$MRRC_TARGET
         productName=$MRRC_PRODUCT_NAME
         productVersion=$MRRC_PRODUCT_VERSION
-        mavenRepoPath=$(ls ./maven-repo/*.zip)
+        work_dir="$(dirname $(params.mrrcParamFilePath))/mrrc"
+        mavenRepoPath="$(ls $work_dir/*.zip)"
         echo "Release $productName-$productVersion into $target"
         charon upload -p $productName -v $productVersion -t $target $mavenRepoPath
       workingDir: $(workspaces.data.path)
