@@ -18,8 +18,7 @@ spec:
       image: registry.redhat.io/rhtas/cosign-rhel9:1.0.1 
       script: |
         set -eux
-        cd $(workspaces.data.path)
-        source $(params.mrrcParamFilePath)
+        . "$(params.mrrcParamFilePath)"
         echo "Verify the maven repo zip $MRRC_ZIP_REGISTRY"
         cosign verify --key /home/konflux/.cosign/cosign.pub $MRRC_ZIP_REGISTRY
       workingDir: $(workspaces.data.path)
@@ -30,8 +29,7 @@ spec:
       image: quay.io/konflux-ci/oras:477ee20f7e6d146ea203c4aaa0507f4d1e925a53
       script: |
         set -eux
-        cd $(workspaces.data.path)
-        source $(params.mrrcParamFilePath)
+        . "$(params.mrrcParamFilePath)"
         echo "Downloading the maven repo zip $MRRC_ZIP_REGISTRY"
         mkdir maven-repo
         cd maven-repo
@@ -41,8 +39,7 @@ spec:
       image: quay.io/redhat-services-prod/spmm-charon-containe-tenant/charon:e9312870607e2ba335231047af9ea81a03e52778
       script: |
         set -eux
-        cd $(workspaces.data.path)
-        source $(params.mrrcParamFilePath)
+        . "$(params.mrrcParamFilePath)"
         target=$MRRC_TARGET
         productName=$MRRC_PRODUCT_NAME
         productVersion=$MRRC_PRODUCT_VERSION

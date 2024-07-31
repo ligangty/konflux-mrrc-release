@@ -21,32 +21,30 @@ spec:
       script: |
         set -eux
 
-        cd $(workspaces.data.path)
         MRRC_ENV_FILE_PATH="$(dirname $(params.dataJsonPath))/mrrc.env"
 
-        zipRegistry=$(jq -r '.zipRegistry' $(params.dataJsonPath))
-        echo "export MRRC_ZIP_REGISTRY=$zipRegistry" >> $MRRC_ENV_FILE_PATH
+        zipRegistry="$(jq -jr '.zipRegistry' $(params.dataJsonPath))"
+        printf "export MRRC_ZIP_REGISTRY=$zipRegistry" >> "$MRRC_ENV_FILE_PATH"
 
-        environment=$(jq -r '.mrrc.environment' $(params.dataJsonPath))
-        release=$(jq -r '.mrrc.release' $(params.dataJsonPath))
-        target=$environment-maven-$release
-        echo "export MRRC_TARGET=$target" >> $MRRC_ENV_FILE_PATH
+        environment="$(jq -jr '.mrrc.environment' $(params.dataJsonPath))"
+        release="$(jq -jr '.mrrc.release' $(params.dataJsonPath))"
+        target="$environment-maven-$release"
+        printf "\nexport MRRC_TARGET=$target" >> "$MRRC_ENV_FILE_PATH"
 
-        productName=$(jq -r '.mrrc.product.name' $(params.dataJsonPath))
-        productVersion=$(jq -r '.mrrc.product.version' $(params.dataJsonPath))
-        echo "export MRRC_PRODUCT_NAME=$productName" >> $MRRC_ENV_FILE_PATH
-        echo "export MRRC_PRODUCT_VERSION=$productVersion" >> $MRRC_ENV_FILE_PATH
+        productName="$(jq -jr '.mrrc.product.name' $(params.dataJsonPath))"
+        productVersion="$(jq -jr '.mrrc.product.version' $(params.dataJsonPath))"
+        printf "\nexport MRRC_PRODUCT_NAME=$productName" >> "$MRRC_ENV_FILE_PATH"
+        printf "\nexport MRRC_PRODUCT_VERSION=$productVersion" >> "$MRRC_ENV_FILE_PATH"
 
-        awsSecret=$(jq -r '.mrrc.awsSecret' $(params.dataJsonPath))
-        echo -n "$awsSecret" > "$(results.charonAWSSecret.path)"
+        jq -jr '.mrrc.awsSecret' $(params.dataJsonPath) > "$(results.charonAWSSecret.path)"
 
-        cosignPubKey=$(jq -r '.cosignPubKeyConfig' $(params.dataJsonPath))
-        if [ "$cosignPubKey" == "null" ]; then 
+        cosignPubKey="$(jq -jr '.cosignPubKeyConfig' $(params.dataJsonPath))"
+        if [ "$cosignPubKey" = "null" ]; then 
           cosignPubKey="cosign-pub-key"
         fi
-        echo -n "$cosignPubKey" > "$(results.cosignPubKeyConfig.path)"
+        printf "$cosignPubKey" > "$(results.cosignPubKeyConfig.path)"
 
-        echo -n "$MRRC_ENV_FILE_PATH" > "$(results.mrrcParamFilePath.path)"
+        printf "$MRRC_ENV_FILE_PATH" > "$(results.mrrcParamFilePath.path)"
       workingDir: $(workspaces.data.path)
   workspaces:
     - name: data
