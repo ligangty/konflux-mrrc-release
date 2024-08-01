@@ -12,11 +12,12 @@ spec:
   policy: konflux-mrrc-release-policy
   data:
     mrrc:
+      product:
+        name: "activemq"
+        cosignPubKeyConfig: "cosign-pub-key"
       release: ga
       environment: dev
       awsSecret: charon-aws-credentials
-    repo:
-      cosignPubKeySecret: "testCosignSecret"
   pipeline:
     pipelineRef:
       resolver: git
