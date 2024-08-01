@@ -4,5 +4,3 @@ resources:
 - konflux-mrrc-ec-policy.yaml
 - konflux-mrrc-release-plan.yaml
 - konflux-mrrc-rpa.yaml
-- konflux-sa-charon-container.yaml
-

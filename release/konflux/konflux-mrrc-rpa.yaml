@@ -15,8 +15,8 @@ spec:
       release: ga
       environment: dev
       awsSecret: charon-aws-credentials
-    cosignPubKeyFile: "test-cosign.pub"
-    cosignPubKeySecret: "testCosignSecret"
+    repo:
+      cosignPubKeySecret: "testCosignSecret"
   pipeline:
     pipelineRef:
       resolver: git

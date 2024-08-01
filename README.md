@@ -25,13 +25,13 @@ To create application, follow the standard Konflux guide to do it.
 
 * Change accordingly for following files:
 
-  * spec.target to your tenant name in [release/kustomize/konflux-mrrc-release-plan.yaml](./release/kustomize/konflux-mrrc-release-plan.yaml)
-  * spec.origin to your tenant name in [release/kustomize/konflux-mrrc-rpa-policy.yaml](./release/kustomize/konflux-mrrc-rpa.yaml)
+  * spec.target to your tenant name in [release/konflux/konflux-mrrc-release-plan.yaml](./release/konflux/konflux-mrrc-release-plan.yaml)
+  * spec.origin to your tenant name in [release/konflux/konflux-mrrc-rpa-policy.yaml](./release/konflux/konflux-mrrc-rpa.yaml)
 * Make sure your kubectl or oc client can access your tenant
 * Run
 
   ```shell
-  kubectl(or oc) apply -k ./release/kustomize/ -n $your-tenant
+  kubectl(or oc) apply -k ./release/konflux/ -n $your-tenant
   ```
 
 ## Setup config of cosign pub keys for signature verification
