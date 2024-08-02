@@ -90,7 +90,7 @@ spec:
           workspace: release-workspace
       runAfter:
         - collect-data
-    - name: mrrc-publish
+    - name: publish-to-mrrc
       taskRef:
         resolver: "git"
         params:
@@ -99,7 +99,7 @@ spec:
           - name: revision
             value: $(params.taskGitRevision)
           - name: pathInRepo
-            value: release/tasks/mrrc-publish.yaml
+            value: release/tasks/publish-to-mrrc.yaml
       params:
         - name: mrrcParamFilePath
           value: "$(tasks.collect-mrrc-params.results.mrrcParamFilePath)"
