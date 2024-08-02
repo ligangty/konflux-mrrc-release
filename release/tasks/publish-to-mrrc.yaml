@@ -15,7 +15,7 @@ spec:
       type: string
   steps:
     - name: verify-repo-signature
-      image: registry.redhat.io/rhtas/cosign-rhel9:1.0.1 
+      image: registry.redhat.io/rhtas/cosign-rhel9:1.0.2
       script: |
         set -eux
         . "$(params.mrrcParamFilePath)"
