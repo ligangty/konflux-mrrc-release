@@ -34,7 +34,7 @@ spec:
         printf "\nexport MRRC_PRODUCT_VERSION=$productVersion" >> "$MRRC_ENV_FILE_PATH"
 
         zipRegistry="$(jq -jer '.mrrc.product.zipRegistry' $(params.dataJsonPath))"
-        printf "export MRRC_ZIP_REGISTRY=$zipRegistry" >> "$MRRC_ENV_FILE_PATH"
+        printf "\nexport MRRC_ZIP_REGISTRY=$zipRegistry" >> "$MRRC_ENV_FILE_PATH"
 
         jq -jer '.mrrc.awsSecret' $(params.dataJsonPath) > "$(results.charonAWSSecret.path)"
 
@@ -42,6 +42,5 @@ spec:
         printf "$cosignPubKey" > "$(results.cosignPubKeyConfig.path)"
 
         printf "$MRRC_ENV_FILE_PATH" > "$(results.mrrcParamFilePath.path)"
-      workingDir: $(workspaces.data.path)
   workspaces:
     - name: data
