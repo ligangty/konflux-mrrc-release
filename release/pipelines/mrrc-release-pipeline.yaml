@@ -161,7 +161,7 @@ spec:
         - name: data
           workspace: release-workspace
       runAfter:
-        - collect-data
+        - verify-enterprise-contract
     - name: publish-to-mrrc
       taskRef:
         resolver: "git"

@@ -3,8 +3,9 @@ kind: EnterpriseContractPolicy
 metadata:
   name: konflux-mrrc-release-policy
 spec:
-  description: 'Rules for shipping AI models to registry.redhat.io - RHELAI-6'
-  publicKey: 'k8s://openshift-pipelines/public-key'
+  description: 'Rules for shipping MW maven artifacts to maven.repository.redhat.com'
+  # publicKey: 'k8s://openshift-pipelines/public-key'
+  publicKey: 'k8s://gli2-tenant/cosign-pub-key'
   sources:
     - name: Release Policies
       data:
@@ -12,15 +13,9 @@ spec:
         - oci::quay.io/konflux-ci/tekton-catalog/data-acceptable-bundles:latest
       policy:
         - oci::quay.io/enterprise-contract/ec-release-policy:git-cd29f49@sha256:6817c74e8cf290e3812790df26ffaa1e0efa4e0f3490e39259fc61a6d3688fdb
-      # ruleData:
-      #   allowed_external_references:
-      #     - type: distribution
-      #       url: '^https://huggingface.co/(mistralai|ibm-granite|prometheus-eval)/.*$'
       config:
         include:
           - '@redhat'
-          # Not included by default
-          - sbom_cyclonedx.allowed_package_external_references
         exclude:
           - labels.required_labels
           - cve.cve_results_found
@@ -38,4 +33,6 @@ spec:
           - redhat_manifests.redhat_manifests_missing:root/buildinfo/content_manifests/sbom-purl.json
           - source_image.exists
           - sbom_cyclonedx.found
+          - builtin.attestation.signature_check
+          - builtin.image.signature_check
 
