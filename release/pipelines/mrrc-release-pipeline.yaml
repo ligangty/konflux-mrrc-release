@@ -28,6 +28,23 @@ spec:
     - name: snapshot
       type: string
       description: The namespaced name (namespace/name) of the snapshot
+    - name: enterpriseContractPolicy
+      type: string
+      description: JSON representation of the EnterpriseContractPolicy
+    - name: enterpriseContractPublicKey
+      type: string
+      description: Public key to use for validation by the enterprise contract
+      default: k8s://gli2-tenant/mrrc-public-key
+    - name: enterpriseContractExtraRuleData
+      type: string
+      description: |
+        Extra rule data to be merged into the policy specified in params.enterpriseContractPolicy. Use syntax
+        "key1=value1,key2=value2..."
+      default: "pipeline_intention=release"
+    - name: enterpriseContractTimeout
+      type: string
+      description: Timeout setting for `ec validate`
+      default: 10m0s
     - name: taskGitUrl
       type: string
       description: The url to the git repo where the release-service-catalog tasks to be used are stored
@@ -46,6 +63,27 @@ spec:
   workspaces:
     - name: release-workspace
   tasks:
+    - name: verify-access-to-resources
+      taskRef:
+        resolver: "git"
+        params:
+          - name: url
+            value: $(params.konfluxTaskGitUrl)
+          - name: revision
+            value: $(params.konfluxTaskGitRevision)
+          - name: pathInRepo
+            value: tasks/verify-access-to-resources/verify-access-to-resources.yaml
+      params:
+        - name: release
+          value: $(params.release)
+        - name: releasePlan
+          value: $(params.releasePlan)
+        - name: releasePlanAdmission
+          value: $(params.releasePlanAdmission)
+        - name: releaseServiceConfig
+          value: $(params.releaseServiceConfig)
+        - name: snapshot
+          value: $(params.snapshot)
     - name: collect-data
       taskRef:
         resolver: "git"
@@ -72,6 +110,40 @@ spec:
       workspaces:
         - name: data
           workspace: release-workspace
+      runAfter:
+        - verify-access-to-resources
+    - name: verify-enterprise-contract
+      taskRef:
+        resolver: "bundles"
+        params:
+          - name: bundle
+            value: $(params.verify_ec_task_bundle)
+          - name: kind
+            value: task
+          - name: name
+            value: verify-enterprise-contract
+      params:
+        - name: IMAGES
+          value: "$(workspaces.data.path)/$(tasks.collect-data.results.snapshotSpec)"
+        - name: SSL_CERT_DIR
+          value: /var/run/secrets/kubernetes.io/serviceaccount
+        - name: POLICY_CONFIGURATION
+          value: $(params.enterpriseContractPolicy)
+        - name: STRICT
+          value: "1"
+        - name: IGNORE_REKOR
+          value: "true"
+        - name: PUBLIC_KEY
+          value: $(params.enterpriseContractPublicKey)
+        - name: EXTRA_RULE_DATA
+          value: $(params.enterpriseContractExtraRuleData)
+        - name: TIMEOUT
+          value: $(params.enterpriseContractTimeout)
+      workspaces:
+        - name: data
+          workspace: release-workspace
+      runAfter:
+        - collect-data
     - name: collect-mrrc-params
       taskRef:
         resolver: "git"
@@ -89,7 +161,7 @@ spec:
         - name: data
           workspace: release-workspace
       runAfter:
-        - collect-data
+        - verify-enterprise-contract
     - name: publish-to-mrrc
       taskRef:
         resolver: "git"
