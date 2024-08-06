@@ -21,7 +21,6 @@ spec:
         . "$(params.mrrcParamFilePath)"
         echo "Verify the maven repo zip $MRRC_ZIP_REGISTRY"
         cosign verify --key /home/konflux/.cosign/cosign.pub $MRRC_ZIP_REGISTRY
-      workingDir: $(workspaces.data.path)
       volumeMounts:
         - name: "pub-key-vol"
           mountPath: "/home/konflux/.cosign/"
@@ -35,7 +34,6 @@ spec:
         mkdir $work_dir
         cd $work_dir
         oras pull $MRRC_ZIP_REGISTRY
-      workingDir: $(workspaces.data.path)
     - name: upload-maven-repo
       image: quay.io/redhat-services-prod/spmm-charon-containe-tenant/charon:e9312870607e2ba335231047af9ea81a03e52778
       script: |
@@ -48,7 +46,6 @@ spec:
         mavenRepoPath="$(ls $work_dir/*.zip)"
         echo "Release $productName-$productVersion into $target"
         charon upload -p $productName -v $productVersion -t $target $mavenRepoPath
-      workingDir: $(workspaces.data.path)
       volumeMounts:
         - name: "charon-configs-vol"
           mountPath: "/home/charon/.charon"
