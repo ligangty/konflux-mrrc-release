@@ -42,5 +42,6 @@ spec:
           - olm.inaccessible_snapshot_references
           - olm.unpinned_snapshot_references
           - schedule.weekday_restriction
+          - labels.rule_data_provided
         
 

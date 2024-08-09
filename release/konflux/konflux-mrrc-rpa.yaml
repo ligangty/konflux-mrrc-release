@@ -11,10 +11,10 @@ spec:
   origin: gli2-tenant
   policy: konflux-mrrc-release-policy
   data:
+    releaseNotes:
+      product_name: "activemq"
+      product_version: "0.0.1"
     mrrc:
-      product:
-        name: "activemq"
-        version: "0.0.1"
       release: ga
       environment: dev
       awsSecret: charon-aws-credentials
