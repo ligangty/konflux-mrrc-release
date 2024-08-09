@@ -8,6 +8,9 @@ spec:
     - name: dataJsonPath
       type: string
       description: path to data json file
+    - name: snapshotPath
+      description: Path to the JSON string of the Snapshot spec in the data workspace
+      type: string
   results:
     - name: mrrcParamFilePath
       description: path of the env file for following tasks
@@ -33,13 +36,16 @@ spec:
         printf "\nexport MRRC_PRODUCT_NAME=$productName" >> "$MRRC_ENV_FILE_PATH"
         printf "\nexport MRRC_PRODUCT_VERSION=$productVersion" >> "$MRRC_ENV_FILE_PATH"
 
-        zipRegistry="$(jq -jer '.mrrc.product.zipRegistry' $(params.dataJsonPath))"
+        SNAPSHOT_PATH=$(workspaces.data.path)/$(params.snapshotPath)
+        zipRegistry="$(jq -jer '.components[0].containerImage' $SNAPSHOT_PATH)"
         printf "\nexport MRRC_ZIP_REGISTRY=$zipRegistry" >> "$MRRC_ENV_FILE_PATH"
 
         jq -jer '.mrrc.awsSecret' $(params.dataJsonPath) > "$(results.charonAWSSecret.path)"
 
         cosignPubKey="$(jq -jr '.mrrc.product.cosignPubKeyConfig // "cosign-pub-key"' $(params.dataJsonPath))"
         printf "$cosignPubKey" > "$(results.cosignPubKeyConfig.path)"
+
+        
 
         printf "$MRRC_ENV_FILE_PATH" > "$(results.mrrcParamFilePath.path)"
   workspaces:
