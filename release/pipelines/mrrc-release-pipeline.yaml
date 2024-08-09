@@ -160,6 +160,8 @@ spec:
       params:
         - name: dataJsonPath
           value: "$(tasks.collect-data.results.data)"
+        - name: snapshotPath
+          value: "$(tasks.collect-data.results.snapshotSpec)"
       workspaces:
         - name: data
           workspace: release-workspace
