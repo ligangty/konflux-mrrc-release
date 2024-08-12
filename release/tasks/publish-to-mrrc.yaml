@@ -18,7 +18,8 @@ spec:
       image: registry.redhat.io/rhtas/cosign-rhel9:1.0.2
       script: |
         set -eux
-        . "$(params.mrrcParamFilePath)"
+        MRRC_FILE="$(workspaces.data.path)/$(params.mrrcParamFilePath)"
+        . "$MRRC_FILE"
         echo "Verify the maven repo zip $MRRC_ZIP_REGISTRY"
         cosign verify --key /home/konflux/.cosign/cosign.pub $MRRC_ZIP_REGISTRY
       volumeMounts:
@@ -28,21 +29,24 @@ spec:
       image: quay.io/konflux-ci/oras:477ee20f7e6d146ea203c4aaa0507f4d1e925a53
       script: |
         set -eux
-        . "$(params.mrrcParamFilePath)"
+        WORK_DIR="$(workspaces.data.path)"
+        MRRC_FILE="$WORK_DIR/$(params.mrrcParamFilePath)"
+        . "$MRRC_FILE"
         echo "Downloading the maven repo zip $MRRC_ZIP_REGISTRY"
-        work_dir="$(dirname $(params.mrrcParamFilePath))/mrrc"
-        mkdir $work_dir
-        cd $work_dir
+        mrrc_dir="$(dirname $MRRC_FILE)/mrrc"
+        mkdir $mrrc_dir
+        cd $mrrc_dir
         oras pull $MRRC_ZIP_REGISTRY
     - name: upload-maven-repo
       image: quay.io/redhat-services-prod/spmm-charon-containe-tenant/charon:e9312870607e2ba335231047af9ea81a03e52778
       script: |
         set -eux
-        . "$(params.mrrcParamFilePath)"
+        MRRC_FILE="$(workspaces.data.path)/$(params.mrrcParamFilePath)"
+        . "$MRRC_FILE"
         target=$MRRC_TARGET
         productName=$MRRC_PRODUCT_NAME
         productVersion=$MRRC_PRODUCT_VERSION
-        work_dir="$(dirname $(params.mrrcParamFilePath))/mrrc"
+        work_dir="$(dirname $MRRC_FILE)/mrrc"
         mavenRepoPath="$(ls $work_dir/*.zip)"
         echo "Release $productName-$productVersion into $target"
         charon upload -p $productName -v $productVersion -t $target $mavenRepoPath

@@ -84,7 +84,7 @@ spec:
             value: release/tasks/collect-mrrc-params.yaml
       params:
         - name: dataJsonPath
-          value: "$(workspaces.data.path)/$(tasks.collect-data.results.data)"
+          value: "$(tasks.collect-data.results.data)"
       workspaces:
         - name: data
           workspace: release-workspace

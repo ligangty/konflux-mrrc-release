@@ -19,28 +19,34 @@ spec:
     - name: collect-mrrc-params
       image: quay.io/konflux-ci/release-service-utils:e633d51cd41d73e4b3310face21bb980af7a662f
       script: |
+        #!/usr/bin/env bash
         set -eux
 
+        WORK_DIR=$(workspaces.data.path)
+        cd $WORK_DIR
+
+        DATA_FILE="$WORK_DIR/$(params.dataJsonPath)"
         MRRC_ENV_FILE_PATH="$(dirname $(params.dataJsonPath))/mrrc.env"
 
-        environment="$(jq -jer '.mrrc.environment' $(params.dataJsonPath))"
-        release="$(jq -jer '.mrrc.release' $(params.dataJsonPath))"
+        environment="$(jq -re '.mrrc.environment' $DATA_FILE)"
+        release="$(jq -re '.mrrc.release' $DATA_FILE)"
         target="$environment-maven-$release"
-        printf "\nexport MRRC_TARGET=$target" >> "$MRRC_ENV_FILE_PATH"
+        echo "export MRRC_TARGET=$target" >> "$MRRC_ENV_FILE_PATH"
 
-        productName="$(jq -jer '.mrrc.product.name' $(params.dataJsonPath))"
-        productVersion="$(jq -jer '.mrrc.product.version' $(params.dataJsonPath))"
-        printf "\nexport MRRC_PRODUCT_NAME=$productName" >> "$MRRC_ENV_FILE_PATH"
-        printf "\nexport MRRC_PRODUCT_VERSION=$productVersion" >> "$MRRC_ENV_FILE_PATH"
+        productName="$(jq -re '.mrrc.product.name' $DATA_FILE)"
+        productVersion="$(jq -re '.mrrc.product.version' $DATA_FILE)"
+        echo "export MRRC_PRODUCT_NAME=$productName" >> "$MRRC_ENV_FILE_PATH"
+        echo "export MRRC_PRODUCT_VERSION=$productVersion" >> "$MRRC_ENV_FILE_PATH"
 
-        zipRegistry="$(jq -jer '.mrrc.product.zipRegistry' $(params.dataJsonPath))"
-        printf "\nexport MRRC_ZIP_REGISTRY=$zipRegistry" >> "$MRRC_ENV_FILE_PATH"
+        zipRegistry="$(jq -re '.mrrc.product.zipRegistry' $DATA_FILE)"
+        echo "export MRRC_ZIP_REGISTRY=$zipRegistry" >> "$MRRC_ENV_FILE_PATH"
 
-        jq -jer '.mrrc.awsSecret' $(params.dataJsonPath) > "$(results.charonAWSSecret.path)"
+        awsSecret="$(jq -re '.mrrc.awsSecret' $DATA_FILE)"
+        echo -n "$awsSecret" > "$(results.charonAWSSecret.path)"
 
-        cosignPubKey="$(jq -jr '.mrrc.product.cosignPubKeyConfig // "cosign-pub-key"' $(params.dataJsonPath))"
-        printf "$cosignPubKey" > "$(results.cosignPubKeyConfig.path)"
+        cosignPubKey="$(jq -j '.mrrc.product.cosignPubKeyConfig // "cosign-pub-key"' $DATA_FILE)"
+        echo -n "$cosignPubKey" > "$(results.cosignPubKeyConfig.path)"
 
-        printf "$MRRC_ENV_FILE_PATH" > "$(results.mrrcParamFilePath.path)"
+        echo -n "$MRRC_ENV_FILE_PATH" > "$(results.mrrcParamFilePath.path)"
   workspaces:
     - name: data
