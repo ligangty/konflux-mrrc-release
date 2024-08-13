@@ -1,3 +1,4 @@
+---
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
@@ -15,7 +16,7 @@ spec:
       type: string
   steps:
     - name: verify-repo-signature
-      image: registry.redhat.io/rhtas/cosign-rhel9:1.0.2
+      image: registry.redhat.io/rhtas/cosign-rhel9@sha256:75791f7ee9257e837d1e3db13415d858c397e803ffa4534c51ca19a2ba34b2ab
       script: |
         set -eux
         MRRC_FILE="$(workspaces.data.path)/$(params.mrrcParamFilePath)"
