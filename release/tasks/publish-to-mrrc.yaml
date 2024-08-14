@@ -32,7 +32,7 @@ spec:
         - name: "pub-key-vol"
           mountPath: "/home/konflux/.cosign/"
     - name: download-maven-repo
-      image: quay.io/konflux-ci/oras:477ee20f7e6d146ea203c4aaa0507f4d1e925a53
+      image: quay.io/konflux-ci/release-service-utils@sha256:c3ee1b2b8609fe6668605ad4cdb8fb20930ad44107101f5edf3051451834876e
       script: |
         set -eux
         WORK_DIR="$(workspaces.data.path)"
