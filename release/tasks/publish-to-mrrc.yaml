@@ -20,29 +20,27 @@ spec:
       description: the secret name for charon aws credential file
       type: string
   steps:
-    - name: verify-repo-signature
-      image: registry.redhat.io/rhtas/cosign-rhel9@sha256:75791f7ee9257e837d1e3db13415d858c397e803ffa4534c51ca19a2ba34b2ab
+    - name: prepare-repo
+      image: quay.io/konflux-ci/release-service-utils:4576e1e2a30439129cb69c8a4f39f7ced2d44376
       script: |
         set -eux
+
+        # First, verify the maven zip artifact
         MRRC_FILE="$(workspaces.data.path)/$(params.mrrcParamFilePath)"
         . "$MRRC_FILE"
         echo "Verify the maven repo zip $MRRC_ZIP_REGISTRY"
         cosign verify --key /home/konflux/.cosign/cosign.pub $MRRC_ZIP_REGISTRY
-      volumeMounts:
-        - name: "pub-key-vol"
-          mountPath: "/home/konflux/.cosign/"
-    - name: download-maven-repo
-      image: quay.io/konflux-ci/release-service-utils@sha256:c3ee1b2b8609fe6668605ad4cdb8fb20930ad44107101f5edf3051451834876e
-      script: |
-        set -eux
-        WORK_DIR="$(workspaces.data.path)"
-        MRRC_FILE="$WORK_DIR/$(params.mrrcParamFilePath)"
-        . "$MRRC_FILE"
+        cosign verify-attestation --key /home/konflux/.cosign/cosign.pub $MRRC_ZIP_REGISTRY
+
+        # Second, download the maven zip to local
         echo "Downloading the maven repo zip $MRRC_ZIP_REGISTRY"
         mrrc_dir="$(dirname $MRRC_FILE)/mrrc"
         mkdir $mrrc_dir
         cd $mrrc_dir
         oras pull $MRRC_ZIP_REGISTRY
+      volumeMounts:
+        - name: "pub-key-vol"
+          mountPath: "/home/konflux/.cosign/"
     - name: upload-maven-repo
       image: quay.io/redhat-services-prod/spmm-charon-containe-tenant/charon:e9312870607e2ba335231047af9ea81a03e52778
       script: |
