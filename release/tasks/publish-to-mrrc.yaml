@@ -42,7 +42,7 @@ spec:
         - name: "pub-key-vol"
           mountPath: "/home/konflux/.cosign/"
     - name: upload-maven-repo
-      image: quay.io/redhat-services-prod/spmm-charon-containe-tenant/charon:e9312870607e2ba335231047af9ea81a03e52778
+      image: quay.io/konflux-ci/charon:b99585182f6750b3f6352889fe9c2222b57833ef
       script: |
         set -eux
         MRRC_FILE="$(workspaces.data.path)/$(params.mrrcParamFilePath)"
