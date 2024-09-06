@@ -14,7 +14,7 @@ spec:
     mrrc:
       product:
         name: "activemq"
-        cosignPubKeyConfig: "cosign-pub-key"
+        # cosignPubKeyConfig: "cosign-pub-key"
       release: ga
       environment: dev
       awsSecret: charon-aws-credentials

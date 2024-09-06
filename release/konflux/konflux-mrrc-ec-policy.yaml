@@ -41,5 +41,6 @@ spec:
           - slsa_source_correlated.source_code_reference_provided
           - olm.inaccessible_snapshot_references
           - olm.unpinned_snapshot_references
+          - schedule.weekday_restriction
         
 

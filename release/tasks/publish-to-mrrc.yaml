@@ -20,33 +20,44 @@ spec:
     - name: prepare-repo
       image: quay.io/konflux-ci/release-service-utils:4576e1e2a30439129cb69c8a4f39f7ced2d44376
       script: |
+        #!/usr/bin/env sh
         set -eux
 
         MRRC_FILE="$(workspaces.data.path)/$(params.mrrcParamFilePath)"
         . "$MRRC_FILE"
         echo "Downloading the maven repo zip $MRRC_ZIP_REGISTRY"
-        mrrc_dir="$(dirname $MRRC_FILE)/mrrc"
-        mkdir $mrrc_dir
-        cd $mrrc_dir
-        oras pull $MRRC_ZIP_REGISTRY
+        mkdir -p /workdir/mrrc
+        cd /workdir/mrrc
+
+        SOURCE_REPO=${MRRC_ZIP_REGISTRY%%@sha256:*}
+        AUTH_FILE=$(mktemp)
+        select-oci-auth "${SOURCE_REPO}" > "$AUTH_FILE"
+        # try fetching Dockerfile for the image
+        oras pull --registry-config "$AUTH_FILE" "$MRRC_ZIP_REGISTRY" -o /workdir/mrrc
+      volumeMounts:
+        - name: workdir
+          mountPath: "/workdir"
     - name: upload-maven-repo
       image: quay.io/konflux-ci/charon:b99585182f6750b3f6352889fe9c2222b57833ef
       script: |
+        #!/usr/bin/env sh
         set -eux
         MRRC_FILE="$(workspaces.data.path)/$(params.mrrcParamFilePath)"
         . "$MRRC_FILE"
         target=$MRRC_TARGET
         productName=$MRRC_PRODUCT_NAME
         productVersion=$MRRC_PRODUCT_VERSION
-        work_dir="$(dirname $MRRC_FILE)/mrrc"
-        mavenRepoPath="$(ls $work_dir/*.zip)"
+        work_dir="/workdir/mrrc"
+        mavenRepoPath="$(ls "$work_dir"/*.zip)"
         echo "Release $productName-$productVersion into $target"
-        charon upload -p $productName -v $productVersion -t $target $mavenRepoPath
+        charon upload -p "$productName" -v "$productVersion" -t "$target" "$mavenRepoPath"
       volumeMounts:
         - name: "charon-configs-vol"
           mountPath: "/home/charon/.charon"
         - name: "charon-aws-vol"
           mountPath: "/home/charon/.aws"
+        - name: workdir
+          mountPath: "/workdir"
   volumes:
     - name: "charon-configs-vol"
       configMap:
@@ -54,5 +65,7 @@ spec:
     - name: "charon-aws-vol"
       secret:
         secretName: "$(params.charonAWSSecret)"
+    - name: workdir
+      emptyDir: {}
   workspaces:
     - name: data
