@@ -13,6 +13,9 @@ spec:
     - name: mrrcParamFilePath
       description: path of the env file for mrrc parameters to use
       type: string
+    - name: charonConfigFilePath
+      description: path of the charon config file for following tasks
+      type: string
     - name: charonAWSSecret
       description: the secret name for charon aws credential file
       type: string
@@ -42,9 +45,15 @@ spec:
       script: |
         #!/usr/bin/env bash
         set -eux
+
+        CHARON_CFG_FILE="$(workspaces.data.path)/$(params.charonConfigFilePath)"
+        mkdir -p "/home/charon/.charon"
+        cp "$CHARON_CFG_FILE" /home/charon/.charon/charon.yaml
+
         MRRC_FILE="$(workspaces.data.path)/$(params.mrrcParamFilePath)"
         # shellcheck source=/dev/null
         . "$MRRC_FILE"
+
         target=$MRRC_TARGET
         productName=$MRRC_PRODUCT_NAME
         productVersion=$MRRC_PRODUCT_VERSION
@@ -53,16 +62,11 @@ spec:
         echo "Release $productName-$productVersion into $target"
         charon upload -p "$productName" -v "$productVersion" -t "$target" "$mavenRepoPath"
       volumeMounts:
-        - name: "charon-configs-vol"
-          mountPath: "/home/charon/.charon"
         - name: "charon-aws-vol"
           mountPath: "/home/charon/.aws"
         - name: workdir
           mountPath: "/workdir"
   volumes:
-    - name: "charon-configs-vol"
-      configMap:
-        name: "charon-configs"
     - name: "charon-aws-vol"
       secret:
         secretName: "$(params.charonAWSSecret)"

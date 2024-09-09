@@ -15,10 +15,24 @@ spec:
       product:
         name: "activemq"
         version: "0.0.1"
-        # cosignPubKeyConfig: "cosign-pub-key"
       release: ga
       environment: dev
       awsSecret: charon-aws-credentials
+      charonConfig: |-
+        aws_profile: ronda
+        aws_cf_enable: False
+        ignore_patterns:
+          - '\..+'
+          - 'index\.htm?'
+          - 'JBossEULA.*'
+          - 'example-settings.xml.*'
+          - 'versions.txt.*'
+          - 'maven-metadata-local.xml'
+          - '.*\.asc'
+        targets:
+          dev-maven-ga:
+          - bucket: "dev-maven-bucket"
+            prefix: ga
   pipeline:
     pipelineRef:
       resolver: git
