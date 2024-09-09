@@ -24,6 +24,7 @@ spec:
         set -eux
 
         MRRC_FILE="$(workspaces.data.path)/$(params.mrrcParamFilePath)"
+        # shellcheck source=/dev/null
         . "$MRRC_FILE"
         echo "Downloading the maven repo zip $MRRC_ZIP_REGISTRY"
         mkdir -p /workdir/mrrc
@@ -32,7 +33,6 @@ spec:
         SOURCE_REPO=${MRRC_ZIP_REGISTRY%%@sha256:*}
         AUTH_FILE=$(mktemp)
         select-oci-auth "${SOURCE_REPO}" > "$AUTH_FILE"
-        # try fetching Dockerfile for the image
         oras pull --registry-config "$AUTH_FILE" "$MRRC_ZIP_REGISTRY" -o /workdir/mrrc
       volumeMounts:
         - name: workdir
@@ -43,6 +43,7 @@ spec:
         #!/usr/bin/env sh
         set -eux
         MRRC_FILE="$(workspaces.data.path)/$(params.mrrcParamFilePath)"
+        # shellcheck source=/dev/null
         . "$MRRC_FILE"
         target=$MRRC_TARGET
         productName=$MRRC_PRODUCT_NAME
