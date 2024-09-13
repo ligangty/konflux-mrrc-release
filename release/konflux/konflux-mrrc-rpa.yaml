@@ -14,6 +14,7 @@ spec:
     mrrc:
       product:
         name: "activemq"
+        version: "0.0.1"
         # cosignPubKeyConfig: "cosign-pub-key"
       release: ga
       environment: dev

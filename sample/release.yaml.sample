@@ -1,0 +1,8 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: quarkus-mrrc-release-1
+  namespace: $your_konflux_tenant
+spec:
+  releasePlan: $your_release_plan
+  snapshot: $your_snapshot

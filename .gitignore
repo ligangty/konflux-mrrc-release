@@ -1,5 +1,4 @@
 clear-release.sh
 release/test-release*.yaml
 repos/
-snapshot.yaml
 test-release*.yaml

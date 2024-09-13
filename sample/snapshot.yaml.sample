@@ -1,0 +1,9 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Snapshot
+metadata:
+  name: activemq-zip-snapshot
+spec:
+  application: $your_application
+  components:
+  - containerImage: quay.io/ligangty/activemq.zip@sha256:02b0c8aadf2b7c69280489662a89851af0bf3842a5cad131536a3adb7a67bf10
+    name: maven-repo-activemq-0.0.1
