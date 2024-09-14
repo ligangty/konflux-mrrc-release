@@ -20,7 +20,7 @@ spec:
     - name: prepare-repo
       image: quay.io/konflux-ci/release-service-utils:4576e1e2a30439129cb69c8a4f39f7ced2d44376
       script: |
-        #!/usr/bin/env sh
+        #!/usr/bin/env bash
         set -eux
 
         MRRC_FILE="$(workspaces.data.path)/$(params.mrrcParamFilePath)"
@@ -40,7 +40,7 @@ spec:
     - name: upload-maven-repo
       image: quay.io/konflux-ci/charon:b99585182f6750b3f6352889fe9c2222b57833ef
       script: |
-        #!/usr/bin/env sh
+        #!/usr/bin/env bash
         set -eux
         MRRC_FILE="$(workspaces.data.path)/$(params.mrrcParamFilePath)"
         # shellcheck source=/dev/null
