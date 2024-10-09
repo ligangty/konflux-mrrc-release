@@ -2,3 +2,6 @@ clear-release.sh
 release/test-release*.yaml
 repos/
 test-release*.yaml
+
+# This is used to be backup of the official pipeline, no need to track here
+release/pipelines/*.bak
