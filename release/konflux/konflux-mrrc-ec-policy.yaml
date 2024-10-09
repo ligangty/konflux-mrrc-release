@@ -35,6 +35,7 @@ spec:
           - redhat_manifests.redhat_manifests_missing:root/buildinfo/content_manifests/sbom-purl.json
           - source_image.exists
           - sbom_cyclonedx.found
+          - sbom_cyclonedx.disallowed_packages_provided
           - attestation_type.pipelinerun_attestation_found
           - slsa_build_scripted_build.image_built_by_trusted_task
           - slsa_source_correlated.attested_source_code_reference
